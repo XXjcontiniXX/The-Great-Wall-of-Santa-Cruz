@@ -4,12 +4,12 @@
 make clean && make sincos
 
 # Run the sincos executable, redirecting its output.
-./sincos > /tmp/sin.dat
+./sincos > sin.dat
 
 # This is the heredoc that is sent to gnuplot.
 gnuplot <<END
     set terminal epslatex
-    set output "figures/sinplot.tex"
+    set output "sinplot.tex"
     set xlabel "\$x$"
     set ylabel "\$y$"
     set zeroaxis
