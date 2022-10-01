@@ -4,7 +4,7 @@
 
 make clean && make collatz
 
-for i in {1..10000}; do ./collatz -n $i | sort -g | tail -1 >> collatz_l.dat; done
+for i in {1..10000}; do ./collatz -n $i | sort -n | tail -1 >> collatz_l.dat; done
 
 gnuplot <<END
     set terminal pdf
