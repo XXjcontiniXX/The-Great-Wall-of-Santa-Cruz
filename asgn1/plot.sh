@@ -8,7 +8,7 @@ make clean && make collatz
 echo > collatz_2.dat
 
 for i in {2..10000}; do
-	./collatz -n $i | wc -l >> collatz_2.dat
+	./collatz -n $i | wc -l >> collatz_2.dat # counts lines
 	
 done
 
@@ -29,7 +29,7 @@ END
 #n x MaxValue ###################
 echo > collatz_3.dat
 
-for i in {2..10000}; do ./collatz -n $i | sort -n | tail -1 >> collatz_3.dat; done
+for i in {2..10000}; do ./collatz -n $i | sort -n | tail -1 >> collatz_3.dat; done # sort then grabs max val
 
 gnuplot <<END
     set termoption enhanced
@@ -45,9 +45,7 @@ gnuplot <<END
     plot "./collatz_3.dat" with dots notitle
 END
 #Lengths x Frequency #################
-echo > collatz_4.dat
-
-echo -n "2" >> collatz_4.dat
+echo -n '2' > collatz_4.dat
 
 sort -n collatz_2.dat | tail -c +2 > tmp_sort.dat
 
@@ -55,11 +53,11 @@ c=0
 
 prev_line=2
 
-while read line;
+while read line; # reads sorted data
 do
-	if [[ $line -eq $prev_line ]];
+	if [[ $line -eq $prev_line ]]; # checks numerical equality
        	then
-		c=$((c+1));
+		c=$((c+1)); # increments
 	else
 		
 		echo -n ' ' >> collatz_4.dat
@@ -88,21 +86,21 @@ END
 
 echo > collatz_cre.dat
 
-c=0
-t=0
+c=0 #counter
+t=0 #total
 
 for i in {0..9}
 do
-	while read num_of_comp;
+	while read num_of_comp; # iterates thru length dat
 	do
-		if [[ $i=${num_of_comp:-2:1} ]];
+		if [[ $i=${num_of_comp:-1:1} ]]; # checks if number starts with a digit
 		then
-			c=$((c+1))
-			t=$((t+num_of_comp))																	               
+			c=$((c+1)) # increments 
+			t=$((t+num_of_comp)) # totals																	               
 		fi
 	done < collatz_2.dat
 	
-	a=$((t/c))
+	a=$((t/c)) #calculates avg
 	echo "$i $a" >> collatz_cre.dat
 done;
 
