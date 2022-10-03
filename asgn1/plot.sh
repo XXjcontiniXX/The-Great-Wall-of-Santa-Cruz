@@ -44,7 +44,7 @@ gnuplot <<END
     set title "Maximum Collatz Sequence Value"
     plot "./collatz_3.dat" with dots notitle
 END
-#Legnths x Frequency #################
+#Lengths x Frequency #################
 echo > collatz_4.dat
 
 echo -n "2" >> collatz_4.dat
@@ -85,3 +85,45 @@ gnuplot <<END
     set title "Collatz Sequence Length Histogram"
     plot "./collatz_4.dat" with boxes notitle
 END
+
+echo > collatz_cre.dat
+
+c=0
+t=0
+
+for i in {0..9}
+do
+	while read num_of_comp;
+	do
+		if [[ $i=${num_of_comp:-2:1} ]];
+		then
+			c=$((c+1))
+			t=$((t+num_of_comp))																	               
+		fi
+	done < collatz_2.dat
+	
+	a=$((t/c))
+	echo "$i $a" >> collatz_cre.dat
+done;
+
+gnuplot <<END
+    set termoption enhanced
+    set terminal pdf
+    set output "cre.pdf"
+    set yrange [0:150]
+    set xrange [-1:10]
+    set style fill solid 1.0
+    set boxwidth 0.9 relative
+    set xlabel "{/:Italic n} digit"
+    set ylabel "average number of computations"
+    set xtics 1
+    set zeroaxis
+    set title "numbers 2-10,000: each bar is the average number of collatz steps when first digit = {/:Italic n}" offset -2,0
+    plot "./collatz_cre.dat" with boxes notitle
+END
+
+rm collatz_4.dat
+rm collatz_3.dat
+rm collatz_2.dat
+rm collatz_cre.dat
+rm tmp_sort.dat
