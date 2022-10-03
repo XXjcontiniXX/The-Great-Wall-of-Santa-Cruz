@@ -10,7 +10,7 @@ collatz.o: collatz.c
 	$(CC) $(CFLAGS) -c collatz.c
 	
 clean:
-	rm -f collatz *.o *.pdf
+	rm -f collatz *.o
 
 format:
 	clang-format -i -style=file *.{c,h}
