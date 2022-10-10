@@ -49,11 +49,10 @@ static double Exp(double x) {
 
 double my_sin(double x) {
 	double total = 0;
-	double zero = 0;
 	double top = 1;
 	double bottom = 1;
 	int prev_k = 0;
-	for (int n = 0; n < 11; n += 1) {
+	for (int n = 0; n < 17; n += 1) {
 		int k = (2 * n) + 1;
 
 		for (int c = k; c > prev_k; c -= 1) {
@@ -75,11 +74,10 @@ double my_sin(double x) {
 
 double my_cos(double x) {
         double total = 0;
-        double zero = 0;
         double top = 1;
         double bottom = 1;
         int prev_k = 0;
-        for (int n = 0; n < 11; n += 1) {
+        for (int n = 0; n < 17; n += 1) {
                 int k = (2 * n);
 
                 for (int c = k; c > prev_k; c -= 1) {
@@ -110,20 +108,20 @@ double my_arcsin(double x) {
 		test = Abs(new_zn) - Abs(zn);
     		zn = new_zn;
 		
-    	} while (test > EPSILON);
+    	} while (test > EPSILON); // continues to approximate until the difference is less than EPSILON
 
 	return new_zn;
 }
 
 double my_arccos(double x) {
 
-	return (M_PI/2) - my_arcsin(x);
+	return (M_PI/2) - my_arcsin(x); // simple enough
 
 }
 
 double my_arctan(double x) {
 	double t;
-	t = ( x/my_sqrt( (x*x) + 1) );
+	t = ( x/my_sqrt( (x*x) + 1) ); //uses trig identity
 	return my_arcsin(t);
 }
 
@@ -139,7 +137,7 @@ double my_log(double x) {
               
                 zn = new_zn;
 		
-	} while (test > EPSILON);
+	} while (test > EPSILON); //same as my_arcsin()
 	
 	return new_zn;
 }

@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <unistd.h>
-#include "mathlib.c"
+#include <math.h>
+#include "mathlib.h"
 #define OPTIONS "ascSCTl"
 
 
 void one (int *rtc) {
-	int something = 1; // swap value
+	int something = 1; // This was inspired by the switch function from lecture 
 	int *uno;	// pointer type var that harbors *something*'s memory address
 	uno = &something;
 	*rtc = *uno; // the value at memory address rtc is now the value at memory adress uno because pointers point to the value at the adress
@@ -14,26 +15,12 @@ void one (int *rtc) {
 
 int main(int argc, char **argv) {
         int opt = 0;
-	int test = 1;
 	int call[7] = {0,0,0,0,0,0,0};
-//	while((prim = getopt(argc, argv, OPTIONS)) != -1) {
-//		if (prim == 'a') {
-//		zero(&test);
-//		printf("prim = %d and test = %d\n", prim, test);
-//		}
-//	}
-//
-//	for (int i = 0; i < argc; i += 1) {
-//		printf("argv[%d] = %s or directly %d\n", i, argv[i], *argv[i]);
-//	}
-//
-//
-//	printf("test outside scope = %d\n", test);
-	while ((opt = getopt(argc, argv, OPTIONS)) != -1 && test) {
+	while ((opt = getopt(argc, argv, OPTIONS)) != -1) {   //loops through options
 		
 		switch(opt) {
 		case 's':
-			one(&call[0]);
+			one(&call[0]); //set array index to 1 to make it globally available that an option is present
 			break;
 		case 'c':
 			one(&call[1]);
@@ -56,31 +43,46 @@ int main(int argc, char **argv) {
 		}
 
 	}
-	if (call[6] == 1) {
-		printf("run all\n");
 	
-	}else{
-		if (call[0] == 1){
-			printf("my sin\n");
-		}	for (double i = 0; i <= 
-		if (call[1] == 1) {
-			printf("my cosin\n");
-		}
-	       	if (call[2] == 1) {
-			printf("my arcsin\n");
-		}
-	       	if (call[3] == 1) {
-			printf("my arccos\n");
-		}
-	       	if (call[4] == 1) {
-			printf("my arctan\n");
-		}
-	       	if (call[5] == 1) {
-			printf("my log\n");
-		}
-	
-	
-	}
-	return 0;
-}
 
+
+
+		if (call[0] == 1 || call[6] == 1){ //if sin is found will trigger or if -a is found
+			printf("  x             sin              Library       Difference\n  -             ------           -------       ----------\n");
+			for (double i = 0; i <= 2 * M_PI; i = i + (.05 * M_PI)) {  //using float because M_PI is a constant so we wont run into any equality issues
+				printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, sin(i), my_sin(i), sin(i) - my_sin(i));	
+					} 
+		}	
+		if (call[1] == 1 || call[6] == 1) {
+			printf("  x             cos              Library       Difference\n  -             ------           -------       ----------\n");
+                       	for (double i = 0; i <= 2 * M_PI; i = i + (.05 * M_PI)) {  //using float because M_PI is a constant so we wont run into any equality issues
+                        	printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, cos(i), my_cos(i), cos(i) - my_cos(i));
+                                        }
+		}
+	       	if (call[2] == 2 || call[6] == 1) {
+                        printf("  x             arcsin              Library       Difference\n  -             ------           -------       ----------\n");
+                        for (double i = -1; i <= 1; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
+                                printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, asin(i), my_arcsin(i), asin(i) - my_arcsin(i));
+                                        }
+		}
+	       	if (call[3] == 1 || call[6] == 1) {
+                	printf("  x             arccos              Library       Difference\n  -             ------           -------       ----------\n");
+                        for (double i = -1; i <= 1; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
+                		printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, acos(i), my_arccos(i), acos(i) - my_arccos(i));        
+			}
+		}
+	       	if (call[4] == 1 || call[6] == 1) {
+			printf("  x             arctan              Library       Difference\n  -             ------           -------       ----------\n");
+                        for (double i = 1; i <= 10; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
+                                printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, atan(i), my_arctan(i), atan(i) - my_arctan(i));
+			}
+		}
+	       	if (call[5] == 1 || call[6] == 1) { 
+			printf("  x             log              Library       Difference\n  -             ------           -------       ----------\n");
+                        for (double i = 1; i <= 10; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
+                                printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, log(i), my_log(i), log(i) - my_log(i));
+		}
+	}
+
+return 0;
+}
