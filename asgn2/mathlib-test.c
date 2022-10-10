@@ -6,7 +6,7 @@
 
 
 void one (int *rtc) {
-	int something = 1; // This was inspired by the switch function from lecture 
+	int something = 1; // This was inspired by the swap function from lecture 
 	int *uno;	// pointer type var that harbors *something*'s memory address
 	uno = &something;
 	*rtc = *uno; // the value at memory address rtc is now the value at memory adress uno because pointers point to the value at the adress
