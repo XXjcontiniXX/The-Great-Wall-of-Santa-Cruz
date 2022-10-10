@@ -27,7 +27,7 @@ double my_sqrt(double x) {
 static double Exp(double x) {
         double t = 1.0;
         double y = 1.0;
-        for (double k = 1.0; t > .0000000001; k += 1.0) {
+        for (double k = 1.0; t > 1e-10; k += 1.0) {
                 t *= x / k;
                 y += t;
         }
@@ -35,14 +35,14 @@ static double Exp(double x) {
 }
 
 
-int main(void) {
-	double d, L;
-	L = -.999999;
-	d = my_arccos(L);
-	printf("Value is: % 1.9lf\n", d);
-	return 0;	
+//int main(void) {
+//	double d, L;
+//	L = .999999;
+//	d = my_arcsin(L);
+//	printf("Value is: % 3.9lf\n", d);
+//	return 0;	
 
-}
+//}
 
 
 
@@ -107,9 +107,7 @@ double my_arcsin(double x) {
 
 	do {
     		new_zn = zn - ((my_sin(zn) - x) / my_cos(zn)); //Newton Raphson technique (Z_n+1 = zn....)
-
 		test = Abs(new_zn) - Abs(zn);
-		printf("zn = %1.9lf, new_zn = %1.9lf test = %1.9lf\n", zn, Abs(new_zn), Abs(test));
     		zn = new_zn;
 		
     	} while (test > EPSILON);
@@ -129,4 +127,19 @@ double my_arctan(double x) {
 	return my_arcsin(t);
 }
 
+double my_log(double x) {
+	double EPSILON = 1e-10;
+	double zn = x;
+	double test;
+	double new_zn;
+	do {
+		new_zn = zn - (((Exp(zn)) - x) / Exp(zn)); //Newton Raphson technique (Z_n+1 = zn....)
 
+		test = Abs(new_zn - zn);
+              
+                zn = new_zn;
+		
+	} while (test > EPSILON);
+	
+	return new_zn;
+}
