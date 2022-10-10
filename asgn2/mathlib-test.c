@@ -61,13 +61,13 @@ int main(int argc, char **argv) {
 		}
 	       	if (call[2] == 1 || call[6] == 1) {
                         printf("  x             arcsin              Library       Difference\n  -             ------           -------       ----------\n");
-                        for (double i = -1; i <= 1; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
+                        for (double i = -1; i <= 1.04; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
                                 printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, asin(i), my_arcsin(i), asin(i) - my_arcsin(i));
                                         }
 		}
 	       	if (call[3] == 1 || call[6] == 1) {
                 	printf("  x             arccos              Library       Difference\n  -             ------           -------       ----------\n");
-                        for (double i = -1; i <= 1; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
+                        for (double i = -1; i <= 1.04; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
                 		printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, acos(i), my_arccos(i), acos(i) - my_arccos(i));        
 			}
 		}
