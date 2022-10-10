@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
                         	printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, cos(i), my_cos(i), cos(i) - my_cos(i));
                                         }
 		}
-	       	if (call[2] == 2 || call[6] == 1) {
+	       	if (call[2] == 1 || call[6] == 1) {
                         printf("  x             arcsin              Library       Difference\n  -             ------           -------       ----------\n");
                         for (double i = -1; i <= 1; i = i + (.05)) {  //using float because M_PI is a constant so we wont run into any equality issues
                                 printf(" %7.4lf % 16.9lf % 16.9lf % 16.12lf\n", i, asin(i), my_arcsin(i), asin(i) - my_arcsin(i));
