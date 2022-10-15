@@ -3,15 +3,16 @@
 #include <stdlib.h>
 #include "mtrand.h"
 
-extern int pot;
+int pot;
 
 int winner;
 
-extern int fin;
+int fin;
 
 
 int play_game (int n_players , int coins_per_player , int * n_rounds) {
-        int players[8] = {0, 0, 0, 0, 0, 0, 0, 0};  //maximum 8 players
+     
+       	int players[8] = {0, 0, 0, 0, 0, 0, 0, 0};  //maximum 8 players
         
 	for (int i = 0; i < n_players; ++i) {   //for every player give them their coins
                 players[i] = coins_per_player;

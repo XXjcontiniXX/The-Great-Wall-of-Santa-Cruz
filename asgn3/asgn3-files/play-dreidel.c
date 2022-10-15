@@ -10,10 +10,10 @@
 
 
 
-int rounds = 0; // defining an extern global variable
 int play_game (int n_players , int coins_per_player , int * n_rounds); 
 
-int coins = 3;
+int rounds = 0; // defining an extern global variable
+int coins = 3; //
 int players = 4; // defining an extern global variable
 int v = 0; // defining an extern global variable 
 uint64_t seed = 613;
@@ -28,8 +28,8 @@ uint64_t *ptr_seed = &seed;
 
 int main(int argc, char **argv) {
         int opt = 0;
+	mtrand_seed(seed);
         while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
-		mtrand_seed(613);
 		switch(opt) {
 		case 'p':
 			if (atoi(optarg) < 2 || atoi(optarg) > 8) {
@@ -50,8 +50,8 @@ int main(int argc, char **argv) {
 				printf("./play_dreidel: error: seed must be positive and less than 1e10\n");
 				exit(1);
 			}
-			*ptr_seed = strtoul(optarg, NULL, 10); 
-			mtrand_seed(strtoul(optarg, NULL, 10));
+			*ptr_seed = strtoull(optarg, NULL, 10); 
+			mtrand_seed(strtoull(optarg, NULL, 10));
 			break;
 		case 'v':
 			*ptr_v = 1; 	

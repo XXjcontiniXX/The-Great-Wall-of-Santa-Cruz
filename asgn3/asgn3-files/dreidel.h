@@ -9,11 +9,13 @@ void play_round(int players[], int *coins_in_pot, int num_players, int *finished
 
 int chk_fin(int users[], int number_players, int *won);
 
-static int pot;
+extern int pot;
 
 extern int winner;
 
-static int fin;
+extern uint64_t seed;
+
+extern int fin;
 
 extern int rounds;
 
