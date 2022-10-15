@@ -5,7 +5,7 @@
 
 extern int pot;
 
-extern int winner;
+int winner;
 
 extern int fin;
 
@@ -61,48 +61,35 @@ void play_round(int round_players[], int *coins_in_pot, int num_players, int *fi
 		if (round_players[i] != -1) {
 			int mod;
 			mod = spin_dreidel();
-			//printf("\n\nLetter %c\n", mod);
 			switch(mod) {
 				case 'N':
-					//printf("User %s had %d coins\n", names[i], round_players[i]);
 					round_players[i] = round_players[i]; // nothing
-					//printf("User now has %d coins", round_players[i]);
 					break;
 
 				case 'G': 
-					//printf("User %s had %d coins\n", names[i], round_players[i]);
 					round_players[i] = round_players[i] + pot; //player gets pot
 					*coins_in_pot = 0; // pot is zeroed
-					//printf("User now has %d coins", round_players[i]);
 					break;
 
 				case 'H':
-					//printf("Pot had %d coins\n", *coins_in_pot);
-					//printf("User %s had %d coins\n", names[i], round_players[i]);
 					round_players[i] = round_players[i] + (pot/2); // player gets half pot
 					*coins_in_pot = *coins_in_pot - (*coins_in_pot/2); //pot is half less
-					//printf("User now has %d coins\n", round_players[i]);
-					//printf("pot has %d coins", *coins_in_pot);
 					break;
 
 				case 'S':
 					if (round_players[i] == 0) {
-						round_players[i] = round_players[i] - 1;	//players coins become negative
+						round_players[i] = round_players[i] - 1; //players coins become negative
+						
 						if (v == 1) {
-						printf("\n%s: eliminated in round %d of a %d player game.\n", names[i], rounds, players);
-						}
+							printf("%s: eliminated in round %d of a %d player game.\n", names[i], rounds, players);
+							}
+
 						if (!!chk_fin(round_players, num_players, &winner)) {
 							*finished = 1;
 							}
 					}else{
-						//printf("Pot had %d coins\n", *coins_in_pot);
-                                        	//printf("User %s had %d coins\n", names[i], round_players[i]);
                                         	round_players[i] = round_players[i] - 1; //player loses one coin
-                                        	*coins_in_pot = *coins_in_pot + 1; //pot gains one coin
-                                        	//printf("User now has %d coins\n", round_players[i]);
-                                        	//printf("Pot has %d coins", *coins_in_pot);			
-						
-						
+                                        	*coins_in_pot = *coins_in_pot + 1; //pot gains one coin	
 					}
 					break;
 			}

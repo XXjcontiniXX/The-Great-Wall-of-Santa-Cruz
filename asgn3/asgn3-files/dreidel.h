@@ -11,7 +11,7 @@ int chk_fin(int users[], int number_players, int *won);
 
 static int pot;
 
-static int winner;
+extern int winner;
 
 static int fin;
 
