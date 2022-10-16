@@ -56,6 +56,9 @@ int main(int argc, char **argv) {
 		case 'v':
 			*ptr_v = 1; 	
 			break;
+		
+		default:
+			exit(1);
 
 		}
 	}
