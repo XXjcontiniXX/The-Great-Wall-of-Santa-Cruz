@@ -37,7 +37,7 @@ int chk_fin(int users[], int number_players, int *won) {
 	int los_demas = 0;
 	int *ptr = &los_demas;
 	for (int i = 0; i < number_players; ++i) {
-		if (users[i] > 0) {
+		if (users[i] > -1) {
 			*ptr = los_demas + 1;
 			*won = i;
 		}
