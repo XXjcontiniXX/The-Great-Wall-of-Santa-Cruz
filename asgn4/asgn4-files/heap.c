@@ -80,5 +80,6 @@ void heap_sort(Stats *stats, uint32_t *arr, uint32_t n_elements) {
 			//printf("down heaped\n");
 		///	printf("%u",)
 		}
+	free(heap);	
 	return;	
 }
