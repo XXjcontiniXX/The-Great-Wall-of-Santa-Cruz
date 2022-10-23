@@ -34,7 +34,7 @@ void shell_sort(Stats *stats, uint32_t *arr, uint32_t n_elements) {
 		for (uint32_t i = gap; i < n_elements; i += 1) {
 			uint32_t j = i;
 			uint32_t temp = move(stats, arr[i]);
-			while (cmp(stats, j, gap) > -1 && cmp(stats, temp, arr[j-gap]) == -1) { // (j >= gap && temp < arr[j-gap]) /// if the elements on opposite sides of the gap are in the wrong spots keep switching by one gap backwards until its on the gap that it should stay on
+			while (j >= gap && cmp(stats, temp, arr[j-gap]) == -1) { // (j >= gap && temp < arr[j-gap]) /// if the elements on opposite sides of the gap are in the wrong spots keep switching by one gap backwards until its on the gap that it should stay on
 				arr[j] = move(stats, arr[j - gap]); // move it back one gap if its needs to be 
 				j -= gap;  // move back one gap back
 			
