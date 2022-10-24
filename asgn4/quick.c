@@ -39,10 +39,10 @@ void quick(Stats *stats, uint32_t *arr, uint32_t start, uint32_t length){
 		uint32_t *copy = (uint32_t *)calloc(length, sizeof(uint32_t));
 	        for (uint32_t i = start; i < length; i++) {
 			if (arr[i] < pivot) {
-				copy[start + left] = arr[i];
+				copy[start + left] = move(stats, arr[i]);
 				left += 1;	
 			} else if (arr[i] > pivot) {
-				copy[length - 1 - right] = arr[i];
+				copy[length - 1 - right] = move(stats, arr[i]);
 				right += 1;
 			}
 
