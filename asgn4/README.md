@@ -1,5 +1,6 @@
 #Sorting Algorithm Tests  
-   A collection of comparison-based sorting algorithms.  
+  
+A collection of comparison-based sorting algorithms.  
   
 USAGE  
    `./sorting [-Hasbhq] [-n length] [-p elements] [-r seed]`  
