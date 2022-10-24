@@ -43,13 +43,11 @@ void down_heap(Stats *stats, uint32_t *arr, uint32_t n_elements){
 			}
 		}
 		if (cmp(stats, arr[n], arr[smaller]) == -1) { // if parent is smaller than both children stop
-			//printf("breaks\n");
 			break;
 			
 		}
 		swap(stats, &arr[n], &arr[smaller]); // if parent is bigger it needs to be put down one to the child and then the smallest child goes up
 		n = smaller; // lets see if the ex-parent now child needs to go down anymore 
-		//printf("parent %u swapped\n", n);
 	}
 	return;
 }
@@ -62,11 +60,7 @@ uint32_t *build_heap (Stats *stats, uint32_t *arr, uint32_t n_elements) {
 		new_heap[n]  = move(stats, arr[n]);
 		up_heap(stats, new_heap, n);
 	}
-	for (uint32_t i = 0; i < n_elements; i++) {
-		//printf("%u\n", new_heap[i]);
-	}
 	return new_heap;
-	
 }
 
 void heap_sort(Stats *stats, uint32_t *arr, uint32_t n_elements) {
@@ -75,10 +69,7 @@ void heap_sort(Stats *stats, uint32_t *arr, uint32_t n_elements) {
 		for (uint32_t n = 0; n < n_elements; n++) {
 			arr[n] = move(stats, heap[0]);
 			heap[0] = move(stats, heap[n_elements - n - 1]); // moves correct numbers into arr by putting heap[0] into index but the number at heap[0] gets deleted and replaced with the last number of the list. The list then gets downheaped and the next appopriate heap number is at heap[0].
-			//printf("arr[%u] = %u\n",n,arr[n]); 
 			down_heap(stats, heap, n_elements - n);
-			//printf("down heaped\n");
-		///	printf("%u",)
 		}
 	free(heap);	
 	return;	

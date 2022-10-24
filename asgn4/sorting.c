@@ -141,6 +141,7 @@ int main(int argc, char **argv) {
 		if (set_member(tracker, 4)) { // heap
                         uint32_t *array_h = (uint32_t *)malloc(n_elements * sizeof(uint32_t));
                         Stats heap;
+			reset(&heap);
                         for (uint32_t i = 0; i < n_elements; i++) {
                                 array_h[i] = array[i];
                         }
@@ -171,17 +172,35 @@ int main(int argc, char **argv) {
 		
 		} 
 		if (set_member(tracker, 5)) { // quick
-                        uint32_t *array_q = (uint32_t *)malloc(n_elements * sizeof(uint32_t));
+			uint32_t *array_q = (uint32_t *)malloc(n_elements * sizeof(uint32_t));
                         Stats quick;
+			reset(&quick);
                         for (uint32_t i = 0; i < n_elements; i++) {
                                 array_q[i] = array[i];
                         }
                         quick_sort(&quick, array_q, n_elements);
-                        for (uint32_t i = 0; i < n_elements; i++) {
-                                printf("%u\n", array_q[i]);
+                        printf("Quick Sort, %u elements, %lu moves, %lu compares\n", n_elements, quick.moves, quick.compares);
+                        int newline = -1;
+                        if (!set_member(tracker, 6)) {
+                                for (uint32_t i = 0; i < n_elements; i++) {
+                                        newline += 1;
+                                        if (newline % 5 == 0 && newline != 0) {
+                                                printf("\n");
+                                        }
+                                        printf("%13" PRIu32, array_q[i]);
                         }
-                        free(array_q);
-			printf("quick\n");
+                                printf("\n");
+                        }else{
+                                for (uint32_t i = 0; i < p_elements; i++) {
+                                newline += 1;
+                                if (newline % 5 == 0 && newline != 0) {
+                                        printf("\n");
+                                }
+                                printf("%13" PRIu32, array_q[i]);
+                        }
+                        printf("\n");
+                        }
+                        free(array_q); 
 		
 		}
 

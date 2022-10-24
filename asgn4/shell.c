@@ -25,9 +25,7 @@ uint32_t next_gap (uint32_t length) {
 
 
 void shell_sort(Stats *stats, uint32_t *arr, uint32_t n_elements) {
-	//printf("%lu", stats->moves);
 	for (uint32_t gap = next_gap(n_elements); gap > 0; gap = next_gap(gap)) {
-		//printf("%u", gap);
 		if ( gap == 0 ) {
 			break;
 		}
