@@ -8,11 +8,16 @@
 
 uint32_t SMALL = 8;
 
-void quick(Stats *stats, uint32_t *arr, uint32_t start, uint32_t length){
-	printf("NEW quick///////////////////");
-	printf("partition: %u\n", length - start);
+void quick(Stats *stats, uint32_t *arr, uint32_t left, uint32_t right);
+
+void quick_sort(Stats *stats, uint32_t *arr, uint32_t n_elements) {
+        quick(stats, arr, 0, n_elements);
+	return;
+}
+
+
+void quick(Stats *stats, uint32_t *arr, uint32_t start, uint32_t length){	
 	if (length - start < SMALL) {
-		printf("shelled\n");
 		uint32_t *subarr = (uint32_t *)malloc((length - start) * sizeof(uint32_t));
 		uint32_t j = 0;
 		for (uint32_t i = start; i < length; i++) {
@@ -26,34 +31,47 @@ void quick(Stats *stats, uint32_t *arr, uint32_t start, uint32_t length){
 			j += 1;
                 }
 		free(subarr);
-		return;	// find a way to sort a subarray whoop
+		return;	
 	}else{
-		uint32_t pivot_num = arr[length-1];
-		uint32_t n_from_start = start; // increment eventually these number will converge at middle
-       		uint32_t n_from_length = length - 1; // decrement
-			for (uint32_t i = start; i < length; i++) {
-				if (arr[i] > pivot_num) {
-					swap(stats, &arr[i], &arr[n_from_length]);  //contintually number with elements cominfrom the right
-					n_from_length -= 1; // index closer to middle
-				}else if (arr[i] < pivot_num) {
-					swap(stats, &arr[i], &arr[n_from_start]);
-					n_from_start += 1;
-				}
+		uint32_t left = 0;
+		uint32_t right = 0;
+		uint32_t pivot = arr[length - 1];
+		uint32_t *copy = (uint32_t *)calloc(length, sizeof(uint32_t));
+	        for (uint32_t i = start; i < length; i++) {
+			if (arr[i] < pivot) {
+				copy[start + left] = arr[i];
+				left += 1;	
+			} else if (arr[i] > pivot) {
+				copy[length - 1 - right] = arr[i];
+				right += 1;
 			}
 
-	for (uint32_t i = start; i < length; i++) {
-		printf("arr[%u] = %u\n", i, arr[i]);
+		}
+		
+		for (uint32_t i = start; i < length; i++) {
+			if (copy[i] != 0) {
+				arr[i] = move(stats, copy[i]);
+			}else{
+				arr[i] = move(stats, pivot);
+				
+			}
+		}
+		free(copy);
+		if (left == 0){
+			quick(stats, arr, start, start); 
+		}else{
+			quick(stats, arr, start, start + left - 1); 
+		}
+		if (right == 0) {
+			
+		}	
+			quick(stats, arr, length - right, length);
+		} 
+
 	}
 	
-	}
-        //quick(stats, arr, start, n_from_start);
-	//quick(stats, arr, n_from_length, length);
-}
+
 			 
 
 
-void quick_sort(Stats *stats, uint32_t *arr, uint32_t n_elements) {
-	quick(stats, arr, 0, n_elements);
-	return;
 
-}
