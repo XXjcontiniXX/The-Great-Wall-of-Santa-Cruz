@@ -90,29 +90,32 @@ void mod_inverse(mpz_t o, mpz_t a, mpz_t n) {
 bool is_prime(mpz_t n, uint64_t iters) {
 	//initing
 	uint64_t s = 1;
-	mpz_t temp_y, y, a, pre_r, c, r, remainder, n_, m, two;
-	mpz_inits(temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
+	mpz_t rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two;
+	mpz_inits(rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
 	//
 	mpz_sub_ui(n_, n, 1);
 	mpz_set_ui(two, 2);
 	//
-	uint64_t rand; 
-	//
 	while (true) {
-		s += 1;
-		mpz_mul_2exp(m, two, s); //  s = (s + 1) always //  real_m = m^s+1
-		mpz_mod(remainder, n_, m); // remainder = n - 1 (mod m^s+1)
+		mpz_pow_ui(m, two, s); //  always m = 2^s TODO MAYBE find a diff way to xponentiate
+		mpz_mod(remainder, n_, m); // remainder = n - 1 (mod m^s)
+		gmp_printf("%Zd is dividend %Zd is divisor remainder is %Zd and s is %d\n", n_, m, remainder, s);
 		if (!mpz_cmp_ui(remainder, 0)) { // remainder == 0
-			mpz_fdiv_q(c, n_, m);   // c = n-1/ 2^s+1
-			mpz_mul_ui(pre_r, c, 2); // pre_r = 2c
-			mpz_add_ui(r, pre_r, 1); // r = 2c + 1
-			break;
+			mpz_fdiv_q(r, n_, m);
+			mpz_mod(c, r, two);
+			if (!mpz_cmp_ui(c, 1)) {
+				//gmp_printf("n-1 is: %Zd /// n-1 mod %Zd = %Zd. r = %Zd and s is %d\n", n_, m, remainder, r, s);
+				break;
+			}
 		}
+			
+		s += 1;
 	}
 	
 	for (uint64_t i = 1; i <= iters; i++) {
-		if ((rand = random()) > 2 && mpz_cmp_ui(n_, rand) > 0) { // if rand > 2 and n-1 > rand 
-			mpz_set_ui(a, rand); // a = rand
+		mpz_urandomm(rand, state, n_);
+		if (!(mpz_cmp_ui(rand, 2) < 0)) { // if rand < 2
+			mpz_set(a, rand); // a = rand
 			pow_mod(y, a, r, n); // y = pow_mod(a, r, n)
 			if (mpz_cmp_ui(y, 1) != 0 && mpz_cmp(y, n_) != 0) { // y != 1 y != n-1
 				uint64_t j = 1;
@@ -128,13 +131,13 @@ bool is_prime(mpz_t n, uint64_t iters) {
 					return false;
 				}
 			}	
-		}else{
-			assert(true);
+		} else {
+			i -= 1;
 		}
+	
 	}
 	return true;
 }
-
 
 
 
