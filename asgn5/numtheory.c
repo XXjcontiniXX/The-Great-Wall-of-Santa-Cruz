@@ -90,12 +90,17 @@ void mod_inverse(mpz_t o, mpz_t a, mpz_t n) {
 bool is_prime(mpz_t n, uint64_t iters) {
 	//initing
 	uint64_t s = 1;
-	mpz_t rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two;
-	mpz_inits(rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
+	mpz_t odd, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two;
+	mpz_inits(odd, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
 	//
 	mpz_sub_ui(n_, n, 1);
 	mpz_set_ui(two, 2);
 	//
+ 	mpz_mod(odd, n, two); //  odd = n mod 2  
+        if (!mpz_cmp_ui(odd, 0)) {
+        	return 0;
+        }
+
 	while (true) {
 		mpz_pow_ui(m, two, s); //  always m = 2^s TODO MAYBE find a diff way to xponentiate
 		mpz_mod(remainder, n_, m); // remainder = n - 1 (mod m^s)
@@ -113,6 +118,7 @@ bool is_prime(mpz_t n, uint64_t iters) {
 	}
 	
 	for (uint64_t i = 1; i <= iters; i++) {
+		printf("uh oh");
 		mpz_urandomm(rand, state, n_);
 		if (!(mpz_cmp_ui(rand, 2) < 0)) { // if rand < 2
 			mpz_set(a, rand); // a = rand
@@ -139,6 +145,15 @@ bool is_prime(mpz_t n, uint64_t iters) {
 	return true;
 }
 
+void make_prime(mpz_t p, uint64_t bits, uint64_t iters) {
+	mpz_urandomb(p, state, bits);
+	while (!is_prime(p, iters)) {
+		mpz_urandomb(p, state, bits);
+		gmp_printf("prime: %Zd\n", p);
+	}
+	gmp_printf("prime: %Zd\n", p);
+	return;
+}
 
 
 
