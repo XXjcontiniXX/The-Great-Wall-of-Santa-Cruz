@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <gmp.h>
 #include "numtheory.h"
+#include "randstate.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -23,10 +24,22 @@ int main (void) {
 	mpz_set_ui(f, 30);
 	mpz_set_ui(b, 45);
 	gcd(g, f, b); 
-*/
+*/ /*
  	mpz_t o, a, n;
 	mpz_inits(o, a, n, NULL);
         mpz_set_ui(a, 24);
         mpz_set_ui(n, 4294967295);
         mod_inverse(o, a, n);
+*//*
+	mpz_t crack;
+	mpz_init(crack);
+	randstate_init(613);	
+	mpz_set_ui(crack, 1031712);
+	printf("%d\n", is_prime(crack,200));
+*/
+	mpz_t p;
+	mpz_init(p);
+	randstate_init(611);
+	make_prime(p, 20, 200);
+
 }
