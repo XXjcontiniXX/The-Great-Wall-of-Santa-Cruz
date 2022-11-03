@@ -3,6 +3,7 @@
 #include <gmp.h>
 #include "numtheory.h"
 #include "randstate.h"
+#include "rsa.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -10,7 +11,7 @@ void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t i
 	uint64_t p_bits = random();
 	uint64_t q_bits;
 	mpz_t test, lambdan, pre_e, ee, gcd_e, pp, qq;
-	mpz_inits(test, lambdan, pre_e, e, gcd_e, pp, qq, NULL);
+	mpz_inits(test, lambdan, pre_e, ee, gcd_e, pp, qq, NULL);
 	if ((nbits % 4) && !(p_bits % (nbits/2))) { // if n_bits not divisble by 4 and random # is 0
 		p_bits = (nbits/4) + (nbits % 4);
 	}else{
@@ -36,16 +37,43 @@ void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t i
 	}
 	mpz_set(e, pre_e);
 	gmp_printf("e = %Zd ... lambdan = %Zd\n", e, lambdan);
+	mpz_clears(test, lambdan, pre_e, gcd_e, pp, qq, NULL);
+	// testing for mpz_make_priv
+	mpz_t d;
+	mpz_init(d);
+	rsa_make_priv(d, e, p, q); 
+	//
 	return;
 
 }
-
+/*
 void rsa_write_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
 	pbfile = fopen("rsa.pub", "w");
 	//TODO
 
 }
+*/
+
+void rsa_make_priv(mpz_t d, mpz_t e, mpz_t p, mpz_t q) {
+	mpz_t pp, qq, gcd_e, ee, lambdan;
+	mpz_inits(pp, qq, gcd_e, ee, lambdan, NULL);
+	mpz_sub_ui(pp, p, 1);
+        mpz_sub_ui(qq, q, 1);
+        //gmp_printf("before gcd pp = %Zd qq = %Zd\n", pp, qq);
+        gcd(gcd_e, pp, qq);
+        mpz_mul(ee, pp, qq);
+        mpz_fdiv_q(lambdan, ee, gcd_e);	
+	mod_inverse(d, e, lambdan); 
+	gmp_printf("d = %Zd .. e = %Zd .. lmbda(n) = %Zd\n", d, e, lambdan);
+	mpz_clears(lambdan, gcd_e, pp, qq, NULL);
+	return;
+
+}
+/*
+void rsa_write_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 
 
 
+}
 
+*/

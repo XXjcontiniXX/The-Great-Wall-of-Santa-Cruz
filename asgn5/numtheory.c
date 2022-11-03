@@ -9,22 +9,22 @@
 #include <assert.h>
 
 void gcd(mpz_t d, mpz_t a, mpz_t b) {
-	mpz_t t;
+	mpz_t t, aa, bb;
 	//
-	mpz_t L;
-	mpz_init(L);
-	mpz_set_ui(L, 1);
-	//mpz_t ans;
+	mpz_inits(t, aa, bb, NULL);
 	//
-	while (mpz_cmp_ui(b, 0)) { // while b != 0
-		mpz_set(t, b);  // t = b
-		mpz_mod(b ,a, b); // b = a (mod b) // could be an issue with setting b += foo
-		mpz_set(a, t);
+	mpz_set(bb, b);
+	mpz_set(aa, a);
+	while (mpz_cmp_ui(bb, 0)) { // while b != 0
+		mpz_set(t, bb);  // t = b
+		mpz_mod(bb ,aa, bb); // b = a (mod b) // could be an issue with setting b += foo
+		mpz_set(aa, t);
 	}	
-	mpz_set(d, a); // d = a // return d
+	mpz_set(d, aa); // d = a // return d
 	//
 	//mpz_fdiv_q_ui(ans, L, 2);
-	gmp_printf("answer is %Zd\n", L);
+	gmp_printf("answer is %Zd\n", d);
+	mpz_clears(t, aa, bb, NULL);
 	//
 }
 
@@ -46,7 +46,8 @@ void pow_mod(mpz_t o, mpz_t a, mpz_t d, mpz_t n) {
 		mpz_fdiv_q_ui(d, new_d, 2); // d = new_d/2
 	}
 	mpz_set(o, v);
-	gmp_printf("%Zd is an mpz\n", o);
+	mpz_clears(v, p, m, new_v, new_p, new_d, NULL);
+	//gmp_printf("%Zd is an mpz\n", o);
 
 }
 
@@ -82,7 +83,7 @@ void mod_inverse(mpz_t o, mpz_t a, mpz_t n) {
 	}
 	mpz_set(o, t);
 	gmp_printf("mod inverse of A = %Zd mod = %Zd is %Zd\n", a, n, o);
-
+	mpz_inits(f, q_t_rp, new_tp, q_t_tp, new_rp, q, t, t_prime, r, r_prime, NULL);
 }
 
 
@@ -90,21 +91,25 @@ void mod_inverse(mpz_t o, mpz_t a, mpz_t n) {
 bool is_prime(mpz_t n, uint64_t iters) {
 	//initing
 	uint64_t s = 1;
-	mpz_t odd, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two;
-	mpz_inits(odd, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
+	mpz_t even, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two;
+	mpz_inits(even, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
 	//
 	mpz_sub_ui(n_, n, 1);
 	mpz_set_ui(two, 2);
 	//
- 	mpz_mod(odd, n, two); //  odd = n mod 2  
-        if (!mpz_cmp_ui(odd, 0)) {
+ 	mpz_mod(even, n, two); //  odd = n mod 2  
+        if (!mpz_cmp_ui(even, 0) && mpz_cmp_ui(n, 2)) {
         	return 0;
-        }
+        }else if(mpz_cmp_ui(n, 4) < 0) {
+		return 1;
+	
+	}
+	
 
 	while (true) {
 		mpz_pow_ui(m, two, s); //  always m = 2^s TODO MAYBE find a diff way to xponentiate
 		mpz_mod(remainder, n_, m); // remainder = n - 1 (mod m^s)
-		gmp_printf("%Zd is dividend %Zd is divisor remainder is %Zd and s is %d\n", n_, m, remainder, s);
+		//gmp_printf("%Zd is dividend %Zd is divisor remainder is %Zd and s is %d\n", n_, m, remainder, s);
 		if (!mpz_cmp_ui(remainder, 0)) { // remainder == 0
 			mpz_fdiv_q(r, n_, m);
 			mpz_mod(c, r, two);
@@ -118,7 +123,7 @@ bool is_prime(mpz_t n, uint64_t iters) {
 	}
 	
 	for (uint64_t i = 1; i <= iters; i++) {
-		printf("uh oh");
+		//printf("uh oh"); 
 		mpz_urandomm(rand, state, n_);
 		if (!(mpz_cmp_ui(rand, 2) < 0)) { // if rand < 2
 			mpz_set(a, rand); // a = rand
@@ -129,11 +134,13 @@ bool is_prime(mpz_t n, uint64_t iters) {
 					mpz_set(temp_y, y);
 					pow_mod(y, temp_y, two, n);
 					if (!mpz_cmp_ui(y, 1)) { // y == 1
+						mpz_clears(even, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
 						return false;
 					}
 					j += 1;
 				}
 				if (mpz_cmp(y, n_) != 0) {
+					mpz_clears(even, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
 					return false;
 				}
 			}	
@@ -142,16 +149,25 @@ bool is_prime(mpz_t n, uint64_t iters) {
 		}
 	
 	}
+	mpz_clears(even, rand, temp_y, y, a, pre_r, c, r, remainder, n_, m, two, NULL);
 	return true;
 }
 
 void make_prime(mpz_t p, uint64_t bits, uint64_t iters) {
-	mpz_urandomb(p, state, bits);
-	while (!is_prime(p, iters)) {
-		mpz_urandomb(p, state, bits);
-		gmp_printf("prime: %Zd\n", p);
-	}
-	gmp_printf("prime: %Zd\n", p);
+	mpz_t pre_p, msb, two;
+	mpz_inits(pre_p, msb, two, NULL);
+	mpz_set_ui(p, 10); // 10 is just a random composite number
+	mpz_set_ui(two, 2);
+	mpz_urandomb(pre_p, state, bits);
+	//gmp_printf("p = %Zd and doesn't work with is prime bruh\n", p);
+	mpz_pow_ui(msb, two, bits-1);
+	while (!is_prime(pre_p, iters) || !is_prime(p, iters)) {
+		mpz_urandomb(pre_p, state, bits);
+		mpz_ior(p, pre_p, msb);	
+	} 
+	//gmp_printf("mask = %Zd ... prime = %Zd\n", msb, pre_p);
+	gmp_printf("masked prime: %Zd\n", p);
+	mpz_clears(pre_p, msb, two, NULL);
 	return;
 }
 
