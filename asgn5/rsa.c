@@ -39,20 +39,52 @@ void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t i
 	gmp_printf("e = %Zd ... lambdan = %Zd\n", e, lambdan);
 	mpz_clears(test, lambdan, pre_e, gcd_e, pp, qq, NULL);
 	// testing for mpz_make_priv
-	mpz_t d;
-	mpz_init(d);
-	rsa_make_priv(d, e, p, q); 
-	//
 	return;
 
 }
-/*
-void rsa_write_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
-	pbfile = fopen("rsa.pub", "w");
-	//TODO
+
+void rsa_write_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {	
+	//uint64_t n_size, e_size, s_size;
+	gmp_printf("%Zd, %Zd %Zd\n", n, e, s);
+	/*char *n_str;
+	char *e_str; 
+	char *s_str; */
+	//n_size = mpz_sizeinbase(n, 16);
+	//e_size = mpz_sizeinbase(e, 16);
+	//s_size = mpz_sizeinbase(s, 16);
+	//char *n_str = (char *)malloc(n_size * sizeof(char));
+	//char *e_str = (char *)malloc(e_size * sizeof(char));
+	//char *s_str = (char *)malloc(s_size * sizeof(char));
+        //gmp_sprintf(n_str, "%Za", n);
+	//gmp_sprintf(e_str, "%Za", e);
+	//gmp_sprintf(s_str, "%Za", s);
+	char * n_str = mpz_get_str(NULL, 16, n);
+	char * e_str = mpz_get_str(NULL, 16, e);
+	char * s_str = mpz_get_str(NULL, 16, s); // found this nice function on an old archive on gmplib.org
+	fprintf(pbfile, "%s\n%s\n%s\n%s\n", n_str, e_str, s_str, username);
+	printf("%s %s %s %s\n", n_str, e_str, s_str, username);
+	return;
+}
+
+
+void rsa_sign(mpz_t s, mpz_t m, mpz_t d, mpz_t n) {
+	pow_mod(s, m, d, n);
 
 }
-*/
+
+bool rsa_verify(mpz_t m, mpz_t s, mpz_t e, mpz_t n) {
+	mpz_t verify;
+        mpz_init(verify);
+	pow_mod(verify, s, e, n);
+	if(!mpz_cmp(verify, m)) {
+		mpz_clear(verify);
+		return true;
+	}else{
+		mpz_clear(verify);
+		return false;
+	}
+
+}
 
 void rsa_make_priv(mpz_t d, mpz_t e, mpz_t p, mpz_t q) {
 	mpz_t pp, qq, gcd_e, ee, lambdan;
