@@ -99,4 +99,86 @@ void rsa_write_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 
 }
 
+//
+// Reads a public RSA key from a file.
+// Public key contents: n, e, signature, username.
+// All mpz_t arguments are expected to be initialized.
+//
+// n: will store the public modulus.
+// e: will store the public exponent.
+// s: will store the signature.
+// username: an allocated array to hold the username.
+// pbfile: the file containing the public key
+//
+void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
+	int i = 0;
+	size_t size;
+	char *key = (char *)malloc(sizeof(size));
+	while (getline(&key, &size, pbfile) != 1) {
+		//printf("works on some level");
+		if (i == 0) {
+			if (mpz_set_str(n, key, 16) != 0) {
+				printf("Error: Invalid  public key.\n");
+			}
+			i++;
+			gmp_printf("n is %Zd\n", n);
+			continue;
+		}
+		if (i == 1) {
+                        if (mpz_set_str(e, key, 16) != 0) {
+                                printf("Error: Invalid  public exponent.\n");
+                        }
+                        i++;
+                        gmp_printf("e is %Zd\n", e);
+			continue;
+		}
+		if (i == 2) {
+                        if (mpz_set_str(s, key, 16) != 0) {
+                                printf("Error: Invalid signature\n");
+                        }
+                        i++;
+                        gmp_printf("s is %Zd\n", s);
+			continue;
+		}
+		if (i == 3) {
+			username = key;
+                        i++;
+                        printf("username is %s", username);
+			continue;
+		}
+		break;
+	
+	}
+}
 
+// Reads a private RSA key from a file.
+// Private key contents: n, d.
+// All mpz_t arguments are expected to be initialized.
+//
+// n: will store the public modulus.
+// d: will store the private key.
+void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
+	int i = 0;
+        size_t size;
+        char *key = (char *)malloc(sizeof(size));
+        while (getline(&key, &size, pvfile) != 1) {
+                //printf("works on some level");
+                if (i == 0) {
+                        if (mpz_set_str(n, key, 16) != 0) {
+                                printf("Error: Invalid  public key.\n");
+                        }
+                        i++;
+                        gmp_printf("n is %Zd\n", n);
+                        continue;
+                }
+                if (i == 1) {
+                        if (mpz_set_str(d, key, 16) != 0) {
+                                printf("Error: Invalid  private key.\n");
+                        }
+                        i++;
+                        gmp_printf("d is %Zd\n", d);
+                        continue;
+		}
+		break;
+	}
+}
