@@ -30,23 +30,24 @@ void gcd(mpz_t d, mpz_t a, mpz_t b) {
 
 
 void pow_mod(mpz_t o, mpz_t a, mpz_t d, mpz_t n) {
-	mpz_t v, p, m, new_v, new_p, new_d; // v and p exist
-	mpz_inits(v, p, m, new_v, new_p, new_d, NULL);
+	mpz_t v, p, m, new_v, new_p, new_d, d_copy; // v and p exist
+	mpz_inits(v, p, m, new_v, new_p, new_d, d_copy, NULL);
+	mpz_set(d_copy, d);
 	mpz_set_ui(v, 1); // v = 1
 	mpz_set(p, a); // p = a
-	while (mpz_cmp_ui(d, 0) > 0) { // d > 0
-		mpz_mod_ui(m, d, 2); // m = d % 2
+	while (mpz_cmp_ui(d_copy, 0) > 0) { // d > 0
+		mpz_mod_ui(m, d_copy, 2); // m = d % 2
 		if (!mpz_cmp_ui(m, 1)) { // if odd
 			mpz_mul(new_v, v, p); // new_v = v * p
 			mpz_mod(v, new_v, n); // v = new_v mod n
 		}
 		mpz_mul(new_p, p, p); // new_p = p*p
 		mpz_mod(p, new_p, n); // p = new_p mod n
-		mpz_set(new_d, d); // d = new_d
-		mpz_fdiv_q_ui(d, new_d, 2); // d = new_d/2
+		mpz_set(new_d, d_copy); // d = new_d
+		mpz_fdiv_q_ui(d_copy, new_d, 2); // d = new_d/2
 	}
 	mpz_set(o, v);
-	mpz_clears(v, p, m, new_v, new_p, new_d, NULL);
+	mpz_clears(v, p, m, new_v, new_p, new_d, d_copy, NULL);
 	//gmp_printf("%Zd is an mpz\n", o);
 
 }
