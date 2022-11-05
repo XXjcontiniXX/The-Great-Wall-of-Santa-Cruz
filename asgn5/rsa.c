@@ -190,18 +190,26 @@ void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 	printf("/// rsa_encrypt_file ///\n");
 	uint64_t k;
-	size_t read;
 	k = mpz_sizeinbase(n, 2); // the number requires k bits
 	k = (k - 1)/8; // k is how many bytes will be in the array
+	size_t read = 1;
 	mpz_t ct;
 	mpz_t m;
-	do {
+	while (read > 0) {
+		
 		printf("next block\n");
 		uint8_t * block = (uint8_t *)malloc(k); // this array will have almost log2(n) bits of space
                 *(block + 0) = 0xFF; // zeroth byte of 488 byte malloc is 0xFF
 	
 		read = fread(block + 1, sizeof(uint8_t), k-1, infile);
-		printf("\n");
+
+		/*for (uint64_t l = 0; l < k-1; l++){I
+			printf("text = %s\n", ((block + 1) + l));
+			}*/
+		if (!(read > 0)) {
+			break;
+			
+		}else{
 		mpz_inits(ct, m, NULL);
 		mpz_import(m, k, 1, sizeof(*(block + 0)), 1, 0, block);
 		rsa_encrypt(ct, m, e, n);
@@ -209,7 +217,9 @@ void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 		fprintf(outfile, "%s\n", ct_str); // open file in append mode "a"
 		free(block);
 		mpz_clears(ct, m, NULL);
-	} while(read > 0);
+		}
+	}
+
 	return;
 }
 
