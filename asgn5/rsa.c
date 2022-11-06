@@ -200,51 +200,40 @@ void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 	uint16_t k;
 	size_t size;
 	uint8_t *block = NULL;
-	//uint8_t *last_block = NULL;
 	size = mpz_sizeinbase(n, 2);
 	k = ((size - 1) / 8); // this is the block size: we encrypt this many bytes of data
 	block = (uint8_t*)malloc(k * sizeof(uint8_t)); // k bytes long
 	*(block + 0) = 0xFF; // zerot out of k bytes is 0
-	//last_block = (uint8_t*)malloc(k * sizeof(uint8_t));
-	//*(last_block + 0) = 0xFF;
 	size_t j;
 	do {
 		*(block + 0) = 0xFF;
-		j = fread(block + 1, sizeof(uint8_t), k - 1, infile);
-			if (j < k - 1) {
-				printf("null term @: %c\n", *(block + j));
-				*(block + j) = '\0';
-			}
+		j = fread(block + 1, sizeof(uint8_t), k - 1, infile); // reads j bytes, block is filled up to j + 1
+			
+		if (j == 0) {
+			break;
+		}
+		if (j < k - 1) { // if didn't fill whole block
+			printf("null term @: %c\n", *(block + j)); // replace jth byte with null terminator even though j + 1 has significant bytes...
+			*(block + j) = '\0';
+		}
 		mpz_import(m, j + 1, 1, sizeof(*(block + 0)), 1, 0, block);
-		
 		rsa_encrypt(ct, m, e, n);
 		char * ct_str = mpz_get_str(NULL, 16, ct);
 		fprintf(outfile, "%s\n", ct_str); // open file in append mode "a"
 		printf("block: %s... j = %zu\n", block, j);					  
 	} while (j == k - 1);
 	free(block);
-	//free(last_block);
 	mpz_clears(ct, m, NULL);
 	return;
 }
 
-//
-// Decrypts an entire file given an RSA public modulus and private key.
-// All mpz_t arguments are expected to be initialized.
-// All FILE * arguments are expected to be properly opened.
-//
-// infile: the input file to decrypt.
-// outfile: the output file to write the decrypted input to.
-// n: the public modulus.
-// d: the private key.
-//
 
 void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
 	printf("/// rsa_decrypt_file ///\n");
         mpz_t ct, m;
         mpz_inits(ct, m);
         uint16_t k;
-	size_t *deref_size = 0;
+	size_t *deref_size = 0; // size of hexstring (which is unnecesarry) lands here
         size_t size;
         uint8_t *block = NULL;
         size = mpz_sizeinbase(n, 2);
@@ -253,6 +242,7 @@ void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
 	size_t len = 0;
 	char *buffer = (char *)malloc(sizeof(char));
 	while (getline(&buffer, &len, infile) != -1) {
+		printf("line got");
 		*(block + k) = '\0';
 		mpz_set_str(ct, buffer, 16); // mpz has the hexstring
 		rsa_decrypt(m, ct, d, n); // m contains the the hextring
