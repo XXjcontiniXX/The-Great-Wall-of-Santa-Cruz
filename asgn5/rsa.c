@@ -113,8 +113,6 @@ void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
 	int i = 0;
 	size_t len = 0;
 	char *key = (char *)malloc(sizeof(char));
-	key = NULL;
-	
 	while (getline(&key, &len, pbfile) != 1) {
 		//printf("works on some level");
 		if (i == 0) {
@@ -159,7 +157,6 @@ void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 	int i = 0;
 	size_t len = 0;
         char *key = (char *)malloc(sizeof(char));
-	key = NULL;
         while (getline(&key, &len, pvfile) != 1) {
                 //printf("works on some level");
                 if (i == 0) {
@@ -196,7 +193,7 @@ void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 	printf("/// rsa_encrypt_file ///\n");
 	mpz_t ct, m;
-	mpz_inits(ct, m);
+	mpz_inits(ct, m, NULL);
 	uint16_t k;
 	size_t size;
 	uint8_t *block = NULL;
@@ -213,14 +210,12 @@ void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 			break;
 		}
 		if (j < k - 1) { // if didn't fill whole block
-			printf("null term @: %c\n", *(block + j)); // replace jth byte with null terminator even though j + 1 has significant bytes...
 			*(block + j) = '\0';
 		}
 		mpz_import(m, j + 1, 1, sizeof(*(block + 0)), 1, 0, block);
 		rsa_encrypt(ct, m, e, n);
 		char * ct_str = mpz_get_str(NULL, 16, ct);
-		fprintf(outfile, "%s\n", ct_str); // open file in append mode "a"
-		printf("block: %s... j = %zu\n", block, j);					  
+		fprintf(outfile, "%s\n", ct_str); // open file in append mode "a"					  
 	} while (j == k - 1);
 	free(block);
 	mpz_clears(ct, m, NULL);
@@ -231,7 +226,7 @@ void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
 	printf("/// rsa_decrypt_file ///\n");
         mpz_t ct, m;
-        mpz_inits(ct, m);
+        mpz_inits(ct, m, NULL);
         uint16_t k;
 	size_t *deref_size = 0; // size of hexstring (which is unnecesarry) lands here
         size_t size;
