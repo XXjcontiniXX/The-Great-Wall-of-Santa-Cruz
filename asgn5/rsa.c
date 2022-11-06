@@ -6,6 +6,7 @@
 #include "rsa.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t iters) {
 	printf("/// rsa_make_pub ///\n");
@@ -110,9 +111,11 @@ void rsa_write_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
 	printf("/// rsa_read_pub ///\n");
 	int i = 0;
-	size_t size;
-	char *key = (char *)malloc(sizeof(size));
-	while (getline(&key, &size, pbfile) != 1) {
+	size_t len = 0;
+	char *key = (char *)malloc(sizeof(char));
+	key = NULL;
+	
+	while (getline(&key, &len, pbfile) != 1) {
 		//printf("works on some level");
 		if (i == 0) {
 			if (mpz_set_str(n, key, 16) != 0) {
@@ -144,8 +147,9 @@ void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
                         printf("username is %s", username);
 			continue;
 		}
+		free(key);
 		break;
-	
+		
 	}
 }
 
@@ -153,9 +157,10 @@ void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
 void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 	printf("/// rsa_read_priv ///\n");
 	int i = 0;
-        size_t size;
-        char *key = (char *)malloc(sizeof(size));
-        while (getline(&key, &size, pvfile) != 1) {
+	size_t len = 0;
+        char *key = (char *)malloc(sizeof(char));
+	key = NULL;
+        while (getline(&key, &len, pvfile) != 1) {
                 //printf("works on some level");
                 if (i == 0) {
                         if (mpz_set_str(n, key, 16) != 0) {
@@ -173,6 +178,7 @@ void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
                         gmp_printf("d is %Zd\n", d);
                         continue;
 		}
+		free(key);
 		break;
 	}
 }
@@ -189,37 +195,31 @@ void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 //
 void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 	printf("/// rsa_encrypt_file ///\n");
-	uint64_t k;
-	k = mpz_sizeinbase(n, 2); // the number requires k bits
-	k = (k - 1)/8; // k is how many bytes will be in the array
-	size_t read = 1;
-	mpz_t ct;
-	mpz_t m;
-	while (read > 0) {
-		
-		printf("next block\n");
-		uint8_t * block = (uint8_t *)malloc(k); // this array will have almost log2(n) bits of space
-                *(block + 0) = 0xFF; // zeroth byte of 488 byte malloc is 0xFF
-	
-		read = fread(block + 1, sizeof(uint8_t), k-1, infile);
-
-		/*for (uint64_t l = 0; l < k-1; l++){I
-			printf("text = %s\n", ((block + 1) + l));
-			}*/
-		if (!(read > 0)) {
-			break;
-			
-		}else{
-		mpz_inits(ct, m, NULL);
-		mpz_import(m, k, 1, sizeof(*(block + 0)), 1, 0, block);
+	mpz_t ct, m;
+	mpz_inits(ct, m);
+	uint16_t k;
+	size_t size;
+	uint8_t *block = NULL;
+	size = mpz_sizeinbase(n, 2);
+	k = ((size - 1) / 8); // this is the block size: we encrypt this many bytes of data
+	block = (uint8_t*)malloc(k * sizeof(uint8_t)); // k bytes long
+	*(block + 0) = 0xFF; // zerot out of k bytes is 0
+	size_t j;
+	do {
+		*(block + 0) = 0xFF;
+		j = fread(block + 1, sizeof(uint8_t), k - 1, infile);
+		if (j != k - 1) {
+			mpz_import(m, j, 1, sizeof(*(block + 0)), 1, 0, block);	// import only up to block + j
+		} else {
+			mpz_import(m, j, 1, sizeof(*(block + 0)), 1, 0, block);
+		}
 		rsa_encrypt(ct, m, e, n);
 		char * ct_str = mpz_get_str(NULL, 16, ct);
 		fprintf(outfile, "%s\n", ct_str); // open file in append mode "a"
-		free(block);
-		mpz_clears(ct, m, NULL);
-		}
-	}
-
+		printf("block: %s... j = %zu\n", block, j);					  
+	} while (j == k - 1);
+	free(block);
+	mpz_clears(ct, m, NULL);
 	return;
 }
 
@@ -236,34 +236,26 @@ void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 
 void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
 	printf("/// rsa_decrypt_file ///\n");
-        uint64_t k;
-        k = mpz_sizeinbase(n, 2); // the number requires k bits
-        k = (k - 1)/8; // k is how many bytes will be in the array
-	uint64_t k_size = k;
-        uint8_t size = k; 
-	mpz_t m, c;
-	mpz_inits(c, m, NULL);
-	char *buffer = (char *)malloc(sizeof(size));
-         // this array will have almost log2(n) bits of space
-                                                        // but we dont need all of it cuz the ct must be < n
-	
-        while (getline(&buffer, &k_size, infile) != -1) {
-
-		uint8_t * block = (uint8_t *)malloc(k_size); // this array will have almost log2(n) bits of space
-                printf("new line\n");		// but we dont need all of it cuz the ct must be < n
-		printf("hex to convert n decrypt %s\n", buffer);
-		mpz_set_str(c, buffer, 16); // c is an mpz_t
-		rsa_decrypt(m, c, d, n);
-		mpz_export(block, &k_size, 1, sizeof(*(block + 0)), 1, 0, m);
-		for (uint64_t i = 1; i < k_size; i++) {
-			fprintf(outfile, "%c", *(block + i));
-                        printf("printing %c to file\n", *(block + i));
-			//printf(".");
-                        //printf("%c", *(block + i));
-                }	
-        	free(block);
-        }
-	mpz_clears(m, c, NULL);
+        mpz_t ct, m;
+        mpz_inits(ct, m);
+        uint16_t k;
+	size_t *deref_size = 0;
+        size_t size;
+        uint8_t *block = NULL;
+        size = mpz_sizeinbase(n, 2);
+        k = ((size - 1) / 8); // this is the block size: we encrypt this many bytes of data
+        block = (uint8_t*)malloc(k * sizeof(uint8_t)); // 
+        *(block + 0) = 0xFF; // zerot out of k bytes is 0
+	size_t len = 0;
+	char *buffer = (char *)malloc(sizeof(char));
+	while (getline(&buffer, &len, infile) != -1) {
+		mpz_set_str(ct, buffer, 16); // hextring to mpz
+		rsa_decrypt(m, ct, d, n); // decrypt mpz hextring
+		mpz_export(block, deref_size, 1, sizeof(*(block + 0)), 1, 0, m); // m to block
+		fprintf(outfile, "%s", block + 1);
+	}       
+	mpz_clears(ct, m, NULL);
+	free(block);
         return;
 }	
 
