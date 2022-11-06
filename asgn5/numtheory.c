@@ -23,7 +23,7 @@ void gcd(mpz_t d, mpz_t a, mpz_t b) {
 	mpz_set(d, aa); // d = a // return d
 	//
 	//mpz_fdiv_q_ui(ans, L, 2);
-	gmp_printf("answer is %Zd\n", d);
+	//gmp_printf("answer is %Zd\n", d);
 	mpz_clears(t, aa, bb, NULL);
 	//
 }
@@ -76,15 +76,15 @@ void mod_inverse(mpz_t o, mpz_t a, mpz_t n) {
 	}
 	if ( mpz_cmp_ui(r, 1) > 0 ) {  // r > 1
 		mpz_set_ui(t, 0);
-		gmp_printf("mod inverse of A = %Zd mod = %Zd is %Zd\n", a, n, o);
+		//gmp_printf("mod inverse of A = %Zd mod = %Zd is %Zd\n", a, n, o);
 		return;	
 	} else if (mpz_cmp_ui(t, 0) < 0) { // 
 		mpz_add(f, t, n);
 		mpz_set(t, f);
 	}
 	mpz_set(o, t);
-	gmp_printf("mod inverse of A = %Zd mod = %Zd is %Zd\n", a, n, o);
-	mpz_inits(f, q_t_rp, new_tp, q_t_tp, new_rp, q, t, t_prime, r, r_prime, NULL);
+	//gmp_printf("mod inverse of A = %Zd mod = %Zd is %Zd\n", a, n, o);
+	mpz_clears(f, q_t_rp, new_tp, q_t_tp, new_rp, q, t, t_prime, r, r_prime, NULL);
 }
 
 
@@ -161,13 +161,13 @@ void make_prime(mpz_t p, uint64_t bits, uint64_t iters) {
 	mpz_set_ui(two, 2);
 	mpz_urandomb(pre_p, state, bits);
 	//gmp_printf("p = %Zd and doesn't work with is prime bruh\n", p);
-	mpz_pow_ui(msb, two, bits-1);
+	mpz_pow_ui(msb, two, bits);
 	while (!is_prime(pre_p, iters) || !is_prime(p, iters)) {
 		mpz_urandomb(pre_p, state, bits);
 		mpz_ior(p, pre_p, msb);	
 	} 
 	//gmp_printf("mask = %Zd ... prime = %Zd\n", msb, pre_p);
-	gmp_printf("masked prime: %Zd\n", p);
+	//gmp_printf("masked prime: %Zd\n", p);
 	mpz_clears(pre_p, msb, two, NULL);
 	return;
 }
