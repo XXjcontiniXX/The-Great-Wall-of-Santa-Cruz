@@ -24,8 +24,8 @@ int main(void) {
 
 
 	mpz_set_ui(m, 1000000); // m the message is 1000000 
-	randstate_init(631);
-	rsa_make_pub(p, q, n, e, 128, 200);
+	randstate_init(100);
+	rsa_make_pub(p, q, n, e, 512, 200);
 	rsa_make_priv(d, e, p, q);
 	rsa_sign(s, m, d, n);
 	char *username = getenv("USER");
