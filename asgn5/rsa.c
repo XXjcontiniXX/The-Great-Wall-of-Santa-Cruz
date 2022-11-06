@@ -26,7 +26,7 @@ void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t i
 	make_prime(p, p_bits, iters); // p holds a random number of p bits
 	make_prime(q, q_bits, iters); // q holds a random number of q bits
 	mpz_mul(n, p, q); // n hold pq
-	gmp_printf("n = %Zd\n", n);
+	//gmp_printf("n = %Zd\n", n);
 	/*
 	mpz_sub_ui(pp, p, 1);
 	mpz_sub_ui(qq, q, 1);	
@@ -51,12 +51,12 @@ void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t i
 
 void rsa_write_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {	
 	printf("/// rsa_write_pub ///\n");
-	gmp_printf("%Zd, %Zd %Zd\n", n, e, s);
+	//gmp_printf("%Zd, %Zd %Zd\n", n, e, s);
 	char * n_str = mpz_get_str(NULL, 16, n);
 	char * e_str = mpz_get_str(NULL, 16, e);
 	char * s_str = mpz_get_str(NULL, 16, s); // found this nice function on an old archive on gmplib.org
 	fprintf(pbfile, "%s\n%s\n%s\n%s\n", n_str, e_str, s_str, username);
-	printf("%s %s %s %s\n", n_str, e_str, s_str, username);
+	//printf("%s %s %s %s\n", n_str, e_str, s_str, username);
 	return;
 }
 
@@ -91,7 +91,7 @@ void rsa_make_priv(mpz_t d, mpz_t e, mpz_t p, mpz_t q) {
         mpz_mul(ee, pp, qq);
         //mpz_fdiv_q(lambdan, ee, gcd_e);	
 	mod_inverse(d, e, ee); 
-	gmp_printf("d = %Zd .. e = %Zd\n", d, e);
+	//gmp_printf("d = %Zd .. e = %Zd\n", d, e);
 	mpz_clears(ee, pp, qq, NULL);
 	return;
 
@@ -99,11 +99,11 @@ void rsa_make_priv(mpz_t d, mpz_t e, mpz_t p, mpz_t q) {
 
 void rsa_write_priv(mpz_t n, mpz_t d, FILE *pvfile) {
         printf("/// rsa_write_priv ///\n");
-	gmp_printf("%Zd, %Zd\n", n, d);
+	//gmp_printf("%Zd, %Zd\n", n, d);
         char * n_str = mpz_get_str(NULL, 16, n);
         char * d_str = mpz_get_str(NULL, 16, d); // found this nice function on an old archive on gmplib.org
         fprintf(pvfile, "%s\n%s\n", n_str, d_str);
-        printf("%s %s\n", n_str, d_str);	
+        //printf("%s %s\n", n_str, d_str);	
 
 
 }
@@ -117,32 +117,35 @@ void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
 		//printf("works on some level");
 		if (i == 0) {
 			if (mpz_set_str(n, key, 16) != 0) {
-				printf("Error: Invalid  public key.\n");
+				fprintf(stderr, "Error: Invalid  public key.\n");
+				exit(2);
 			}
 			i++;
-			gmp_printf("n is %Zd\n", n);
+			//gmp_printf("n is %Zd\n", n);
 			continue;
 		}
 		if (i == 1) {
                         if (mpz_set_str(e, key, 16) != 0) {
-                                printf("Error: Invalid  public exponent.\n");
-                        }
+                                fprintf(stderr, "Error: Invalid  public exponent.\n");
+                        	exit(2);
+			}
                         i++;
-                        gmp_printf("e is %Zd\n", e);
+                        //gmp_printf("e is %Zd\n", e);
 			continue;
 		}
 		if (i == 2) {
                         if (mpz_set_str(s, key, 16) != 0) {
-                                printf("Error: Invalid signature\n");
-                        }
+                                fprintf(stderr, "Error: Invalid signature\n");
+                        	exit(2);
+			}
                         i++;
-                        gmp_printf("s is %Zd\n", s);
+                        //gmp_printf("s is %Zd\n", s);
 			continue;
 		}
 		if (i == 3) {
-			username = key;
+			strcpy(username, key);
                         i++;
-                        printf("username is %s", username);
+                        //printf("username is %s", username);
 			continue;
 		}
 		free(key);
@@ -161,18 +164,20 @@ void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
                 //printf("works on some level");
                 if (i == 0) {
                         if (mpz_set_str(n, key, 16) != 0) {
-                                printf("Error: Invalid  public key.\n");
-                        }
+                                fprintf(stderr, "Error: Invalid  public key.\n");
+                        	exit(3);
+			}
                         i++;
-                        gmp_printf("n is %Zd\n", n);
+                        //gmp_printf("n is %Zd\n", n);
                         continue;
                 }
                 if (i == 1) {
                         if (mpz_set_str(d, key, 16) != 0) {
-                                printf("Error: Invalid  private key.\n");
-                        }
+                                fprintf(stderr, "Error: Invalid  private key.\n");
+                        	exit(3);
+			}
                         i++;
-                        gmp_printf("d is %Zd\n", d);
+                       //gmp_printf("d is %Zd\n", d);
                         continue;
 		}
 		free(key);
@@ -237,12 +242,12 @@ void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
 	size_t len = 0;
 	char *buffer = (char *)malloc(sizeof(char));
 	while (getline(&buffer, &len, infile) != -1) {
-		printf("line got");
+		//printf("line got");
 		*(block + k) = '\0';
 		mpz_set_str(ct, buffer, 16); // mpz has the hexstring
 		rsa_decrypt(m, ct, d, n); // m contains the the hextring
 		mpz_export(block, deref_size, 1, sizeof(*(block + 0)), 1, 0, m);  // m to block
-		printf("decrypted block: %s\n", block + 1); //for some 
+		//printf("decrypted block: %s\n", block + 1); //for some 
 		fprintf(outfile, "%s", block + 1); // for some reason accessing the 1 out of bounds (block + k)
 		
 	}       
