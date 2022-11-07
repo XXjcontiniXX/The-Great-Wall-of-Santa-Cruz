@@ -24,8 +24,8 @@ writing the result to the specified output file.
 If ./encrypt is not given an -i argument and stdin is also empty, the program runs forever and should be halted with ctrl + c.  
 
 # Decrypt  
-Usage: ./decrypt [options]  
-./decrypt decrypts an input file using the specified private key file,  
+Usage: `./decrypt [options]`  
+`./decrypt` decrypts an input file using the specified private key file,  
 writing the result to the specified output file.  
     `-i <infile>`: Read input from <infile>. Default: standard input.  
     `-o <outfile>`: Write output to <outfile>. Default: standard output.  
@@ -34,6 +34,6 @@ writing the result to the specified output file.
     `-h`          : Display program synopsis and usage.  
 
 ### Encrypt's bugs:  
-  If `./decrypt` is not given an -i argument and stdin is also empty, the program runs forever and should be halted with ctrl + c.  
+  If `./decrypt` is not given an -i argument and stdin is also empty, the program runs forever and should be halted with keystrokes `ctrl + c`.  
   
   Additionally, decrypt does not automatically print with a newline so when decrypt reads to stdout text can print behind the user's and path instead of in its own line.
