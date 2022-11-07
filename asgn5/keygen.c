@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   mpz_t name_62, p, q, e, n, s, d;
   mpz_inits(name_62, p, q, e, n, s, d, NULL);
   char help[] =
-      "Usage: ./keygen [options]\n  ./keygen-dist generates a public / private "
+      "Usage: ./keygen [options]\n  ./keygen generates a public / private "
       "key pair, placing the keys into the public and private\n  key files as "
       "specified below. The keys have a modulus (n) whose length is specified "
       "in\n  the program options.\n    -s <seed>   : Use <seed> as the random "

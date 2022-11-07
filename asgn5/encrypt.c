@@ -20,17 +20,7 @@ int main(int argc, char **argv) {
   mpz_t name_62, e, n, s;
   mpz_inits(name_62, e, n, s, NULL);
   char help[] =
-      "Usage: ./keygen [options]\n  ./keygen-dist generates a public / private "
-      "key pair, placing the keys into the public and private\n  key files as "
-      "specified below. The keys have a modulus (n) whose length is specified "
-      "in\n  the program options.\n    -s <seed>   : Use <seed> as the random "
-      "number seed. Default: time()\n    -b <bits>   : Public modulus n must "
-      "have at least <bits> bits. Default: 1024\n    -i <iters>  : Run <iters> "
-      "Miller-Rabin iterations for primality testing. Default: 50\n    -n "
-      "<pbfile> : Public key file is <pbfile>. Default: rsa.pub\n    -d "
-      "<pvfile> : Private key file is <pvfile>. Default: rsa.priv\n    -v      "
-      "    : Enable verbose output.\n    -h          : Display program "
-      "synopsis and usage.\n";
+      "Usage: ./encrypt [options]\n  ./encrypt encrypts an input file using the specified public key file,  \nwriting the result to the specified output file.\n    -i <infile> : Read input from <infile>. Default: standard input.\n    -o <outfile>: Write output to <outfile>. Default: standard output.\n    -n <keyfile>: Public key is in <keyfile>. Default: rsa.pub.\n    -v          : Enable verbose output.\n    -h          : Display program synopsis and usage.\n";
   char *username = (char *)malloc(sizeof(char));
   char *pub_file = (char *)malloc(sizeof(char) * 8);
   char *new_pub_file;
@@ -121,6 +111,7 @@ int main(int argc, char **argv) {
   free(output_str);
   free(message_str);
   free(pub_file);
+  free(username);
   mpz_clears(name_62, e, n, s, NULL);
   return 0;
 }
