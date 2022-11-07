@@ -66,6 +66,10 @@ int main(int argc, char **argv) {
   }
 
   pbfile = fopen(pub_file, "r");
+  if (pbfile == NULL) {
+      fprintf(stderr, "./encrypt: [ERROR] pointer to key file is NULL.\n");
+      exit(1);
+  }
   rsa_read_pub(n, e, s, username, pbfile);
   mpz_set_str(name_62, username, 62);
   if (!rsa_verify(name_62, s, e, n)) {

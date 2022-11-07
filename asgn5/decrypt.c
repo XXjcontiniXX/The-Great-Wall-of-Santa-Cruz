@@ -64,7 +64,12 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+  
   pvfile = fopen(priv_file, "r");
+  if (pvfile == NULL) {
+	fprintf(stderr, "./decrypt: [ERROR] pointer to key file is NULL.\n");
+	exit(1); 
+  }
   rsa_read_priv(n, d, pvfile);
 
   if ((v | (1 << 2)) == v) { // if v or 0100 == v there is a file to specify
