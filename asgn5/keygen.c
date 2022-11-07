@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <gmp.h>
 #include "numtheory.h"
@@ -17,13 +18,16 @@
 int main(int argc, char **argv) {
         int opt = 0;
 	uint8_t v = 0;
-	//mpz_t p, q, e, n, s, d;
-	//mpz_inits(p, q, e, n, s, d, NULL);
+	mpz_t name_62, p, q, e, n, s, d;
+	mpz_inits(name_62, p, q, e, n, s, d, NULL);
 	char help[] = "Usage: ./keygen [options]\n  ./keygen-dist generates a public / private key pair, placing the keys into the public and private\n  key files as specified below. The keys have a modulus (n) whose length is specified in\n  the program options.\n    -s <seed>   : Use <seed> as the random number seed. Default: time()\n    -b <bits>   : Public modulus n must have at least <bits> bits. Default: 1024\n    -i <iters>  : Run <iters> Miller-Rabin iterations for primality testing. Default: 50\n    -n <pbfile> : Public key file is <pbfile>. Default: rsa.pub\n    -d <pvfile> : Private key file is <pvfile>. Default: rsa.priv\n    -v          : Enable verbose output.\n    -h          : Display program synopsis and usage.\n";	
 	char *pub_file = (char *)malloc(sizeof(char) * 8);
 	char *priv_file = (char *)malloc(sizeof(char) * 9);
 	char *new_pub_file;
 	char *new_priv_file;
+	int pvfilder;
+	FILE *pbfile;
+	FILE *pvfile;
 	strcpy(pub_file, "rsa.pub");
 	strcpy(priv_file, "rsa.priv");
 	uint64_t iters = 50;
@@ -69,16 +73,42 @@ int main(int argc, char **argv) {
 			break;
 		} // switch
 	} // while
-	printf("v = %d\n", v);
-	if (v > 1) {
+	//printf("v = %d\n", v);
+	if (v > 1) { // if ann error gets caught here
 		fprintf(stderr, "%s", help);
 		exit(1);
 	}
-	if (v == 1) { // only when v == 1 verbose  if v < 1 or 0 its chill
-		printf("iters: %lu\n nbits: %lu\n seed: %lu\n pub_file: %s\n priv_file: %s\n", iters, nbits, seed, pub_file, priv_file);
+	printf("pubfile = %s\n", pub_file);
+	pbfile = fopen(pub_file, "w");
+	pvfile = fopen(priv_file, "w");
 	
-	}
+	if (pbfile == NULL || pvfile == NULL) {
+		fprintf(stderr, "./keygen: [ERROR] pointer to key file is NULL.\n");
+		exit(1);
+		}
+	pvfilder = fileno(pvfile); // found file num
+	fchmod(pvfilder, 0600); // set that file to 600
 	randstate_init(seed); // inits w/ seed
-	printf("success\n");
+        rsa_make_pub(p, q, n, e, nbits, iters);
+        rsa_make_priv(d, e, p, q);
+	char *username = getenv("USER");
+	mpz_set_str(name_62, username, 62);
+	rsa_sign(s, name_62, d, n);
+	rsa_write_pub(n, e, s, username, pbfile);
+	rsa_write_priv(n, d, pvfile);
+	uint64_t str_s = mpz_sizeinbase(s, 2);  
+	uint64_t str_p = mpz_sizeinbase(p, 2);
+	uint64_t str_q = mpz_sizeinbase(q, 2);
+        uint64_t str_n = mpz_sizeinbase(n, 2);
+	uint64_t str_e = mpz_sizeinbase(e, 2);
+        uint64_t str_d = mpz_sizeinbase(d, 2);
+	if (v == 1) { // only when v == 1 verbose  if v < 1 or 0 its chill
+		gmp_fprintf(stderr, "username: %s\nuser signature (%lu bits): %Zd\np (%lu bits): %Zd\nq (%lu bits): %Zd\nn - modulus (%lu bits): %Zd\ne - public exponent (%lu bits): %Zd\nd - private exponent (%lu bits): %Zd\n", username, str_s, s, str_p, p, str_q, q, str_n, n, str_e, e, str_d, d);
+	}
+        fclose(pbfile);
+        fclose(pvfile);
+        mpz_clears(name_62, p, q, e, n, s, d, NULL);
+        free(pub_file);
+        free(priv_file);
 	return 0;
 }
