@@ -20,7 +20,7 @@ writing the result to the specified output file.
     -n <keyfile>: Public key is in <keyfile>. Default: rsa.pub.  
     -v          : Enable verbose output.  
     -h          : Display program synopsis and usage.  
-### bugs:  
+### Decrypt's bugs:  
 If ./encrypt is not given an -i argument and stdin is also empty, the program runs forever and should be halted with ctrl + c.  
 
 # Decrypt  
@@ -33,7 +33,7 @@ writing the result to the specified output file.
     -v          : Enable verbose output.  
     -h          : Display program synopsis and usage.  
 
-### bugs:  
+### Encrypt's bugs:  
   If ./decrypt is not given an -i argument and stdin is also empty, the program runs forever and should be halted with ctrl + c.  
   
   Additionally, decrypt does not automatically print with a newline so when decrypt reads to stdout text can print behind the user's and path instead of in its own line.
