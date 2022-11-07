@@ -9,7 +9,7 @@
 #include <string.h>
 
 void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t iters) {
-	printf("/// rsa_make_pub ///\n");
+	//printf("/// rsa_make_pub ///\n");
 	uint64_t p_bits = random();
 	uint64_t q_bits;
 	//mpz_t test, lambdan, pre_e, ee, gcd_e, pp, qq;
@@ -50,7 +50,7 @@ void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t i
 }
 
 void rsa_write_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {	
-	printf("/// rsa_write_pub ///\n");
+	//printf("/// rsa_write_pub ///\n");
 	//gmp_printf("%Zd, %Zd %Zd\n", n, e, s);
 	char * n_str = mpz_get_str(NULL, 16, n);
 	char * e_str = mpz_get_str(NULL, 16, e);
@@ -81,7 +81,7 @@ bool rsa_verify(mpz_t m, mpz_t s, mpz_t e, mpz_t n) {
 }
 
 void rsa_make_priv(mpz_t d, mpz_t e, mpz_t p, mpz_t q) {
-	printf("/// rsa_make_priv ///\n");
+	//printf("/// rsa_make_priv ///\n");
 	mpz_t pp, qq, ee;
 	mpz_inits(pp, qq, ee, NULL);
 	mpz_sub_ui(pp, p, 1);
@@ -98,7 +98,7 @@ void rsa_make_priv(mpz_t d, mpz_t e, mpz_t p, mpz_t q) {
 }
 
 void rsa_write_priv(mpz_t n, mpz_t d, FILE *pvfile) {
-        printf("/// rsa_write_priv ///\n");
+        //printf("/// rsa_write_priv ///\n");
 	//gmp_printf("%Zd, %Zd\n", n, d);
         char * n_str = mpz_get_str(NULL, 16, n);
         char * d_str = mpz_get_str(NULL, 16, d); // found this nice function on an old archive on gmplib.org
@@ -109,7 +109,7 @@ void rsa_write_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 }
 
 void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
-	printf("/// rsa_read_pub ///\n");
+	//printf("/// rsa_read_pub ///\n");
 	int i = 0;
 	size_t len = 0;
 	char *key = (char *)malloc(sizeof(char));
@@ -143,6 +143,7 @@ void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
 			continue;
 		}
 		if (i == 3) {
+			username = (char*)realloc(username, strlen(key));	
 			strcpy(username, key);
                         i++;
                         //printf("username is %s", username);
@@ -156,7 +157,7 @@ void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
 
 
 void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
-	printf("/// rsa_read_priv ///\n");
+	//printf("/// rsa_read_priv ///\n");
 	int i = 0;
 	size_t len = 0;
         char *key = (char *)malloc(sizeof(char));
@@ -185,18 +186,8 @@ void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
 	}
 }
 
-//
-// Encrypts an entire file given an RSA public modulus and exponent.
-// All mpz_t arguments are expected to be initialized.
-// All FILE * arguments are expected to be properly opened.
-//
-// infile: the input file to encrypt.
-// outfile: the output file to write the encrypted input to.
-// n: the public modulus.
-// e: the public exponent.
-//
 void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
-	printf("/// rsa_encrypt_file ///\n");
+	//printf("/// rsa_encrypt_file ///\n");
 	mpz_t ct, m;
 	mpz_inits(ct, m, NULL);
 	uint16_t k;
@@ -229,7 +220,7 @@ void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 
 
 void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
-	printf("/// rsa_decrypt_file ///\n");
+	//printf("/// rsa_decrypt_file ///\n");
         mpz_t ct, m;
         mpz_inits(ct, m, NULL);
         uint16_t k;

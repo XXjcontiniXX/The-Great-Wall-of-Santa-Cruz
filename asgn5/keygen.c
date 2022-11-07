@@ -78,7 +78,6 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "%s", help);
 		exit(1);
 	}
-	printf("pubfile = %s\n", pub_file);
 	pbfile = fopen(pub_file, "w");
 	pvfile = fopen(priv_file, "w");
 	
@@ -110,5 +109,6 @@ int main(int argc, char **argv) {
         mpz_clears(name_62, p, q, e, n, s, d, NULL);
         free(pub_file);
         free(priv_file);
+	randstate_clear();
 	return 0;
 }

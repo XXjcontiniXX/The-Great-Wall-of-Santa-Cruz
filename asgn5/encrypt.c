@@ -18,8 +18,8 @@
 int main(int argc, char **argv) {
         int opt = 0;
         uint8_t v = 0;
-        mpz_t name_62, e, n, s, m, ct;
-        mpz_inits(name_62, e, n, s, m, ct, NULL);
+        mpz_t name_62, e, n, s;
+        mpz_inits(name_62, e, n, s, NULL);
         char help[] = "Usage: ./keygen [options]\n  ./keygen-dist generates a public / private key pair, placing the keys into the public and private\n  key files as specified below. The keys have a modulus (n) whose length is specified in\n  the program options.\n    -s <seed>   : Use <seed> as the random number seed. Default: time()\n    -b <bits>   : Public modulus n must have at least <bits> bits. Default: 1024\n    -i <iters>  : Run <iters> Miller-Rabin iterations for primality testing. Default: 50\n    -n <pbfile> : Public key file is <pbfile>. Default: rsa.pub\n    -d <pvfile> : Private key file is <pvfile>. Default: rsa.priv\n    -v          : Enable verbose output.\n    -h          : Display program synopsis and usage.\n";
 	char *username = (char *)malloc(sizeof(char));
 	char *pub_file = (char *)malloc(sizeof(char) * 8);
@@ -73,6 +73,13 @@ int main(int argc, char **argv) {
                         fprintf(stderr, "./encrypt: [ERROR] Signature couldn't be verified.\n");
                         exit(1);
 	}
+       	uint64_t str_s = mpz_sizeinbase(s, 2);
+        uint64_t str_n = mpz_sizeinbase(n, 2);
+        uint64_t str_e = mpz_sizeinbase(e, 2);
+	
+	if ((v | (1 << 0)) == v) { // only when v == 1 verbose  if v < 1 or 0 its chill
+                gmp_fprintf(stderr, "username: %suser signature (%lu bits): %Zd\nn - modulus (%lu bits): %Zd\ne - public exponent (%lu bits): %Zd\n", username, str_s, s, str_n, n, str_e, e);
+	}
 	
 	if ((v | (1 << 2)) == v) { // if v or 0100 == v there is a file to specify
 		message_file = fopen(message_name, "r");
@@ -91,9 +98,10 @@ int main(int argc, char **argv) {
 	} else { // if in_file and printf
 		rsa_encrypt_file(stdin, stdout, n, e);
 	}
+      
 	free(output_str);
 	free(message_str);
 	free(pub_file);
-	mpz_clears(name_62, e, n, s, m, ct, NULL);
-	return 1;
+	mpz_clears(name_62, e, n, s, NULL);
+	return 0;
 }
