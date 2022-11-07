@@ -17,10 +17,10 @@ decrypt: decrypt.o rsa.o randstate.o numtheory.o
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f keygen encrypt decrypt *.o
+	rm -f keygen encrypt decrypt *.o *.txt
 
 cleankeys:
-	rm -f *.{pub,priv}
+	rm -r *.pub *.priv
 
 format:
 	clang-format -i -style=file *.[ch]

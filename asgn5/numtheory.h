@@ -2,8 +2,10 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+// clang-format off
 #include <stdio.h>
 #include <gmp.h>
+// clang-format on
 
 void gcd(mpz_t d, mpz_t a, mpz_t b);
 
