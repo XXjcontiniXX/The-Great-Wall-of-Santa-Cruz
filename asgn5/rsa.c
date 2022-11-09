@@ -222,7 +222,7 @@ void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
     // printf("decrypted block: %s\n", block + 1); //for some
     fprintf(outfile, "%s\n",
             block +
-                1); // for some reason accessing the 1 out of bounds (block + k)
+                1); // for some reason accessing the 1 out of bounds (block + k).
   }
  	 mpz_clears(ct, m, NULL);
   free(block);
