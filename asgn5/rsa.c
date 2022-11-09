@@ -15,8 +15,6 @@ void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits,
   // printf("/// rsa_make_pub ///\n");
   uint64_t p_bits = random();
   uint64_t q_bits;
-  // mpz_t test, lambdan, pre_e, ee, gcd_e, pp, qq;
-  // mpz_inits(test, lambdan, pre_e, ee, gcd_e, pp, qq, NULL);
 
   if ((nbits % 4) &&
       !(p_bits %
@@ -31,26 +29,9 @@ void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits,
   q_bits = nbits - p_bits;      // q_bits is the difference
   make_prime(p, p_bits, iters); // p holds a random number of p bits
   make_prime(q, q_bits, iters); // q holds a random number of q bits
-  mpz_mul(n, p, q);             // n hold pq
-  // gmp_printf("n = %Zd\n", n);
-  /*
-  mpz_sub_ui(pp, p, 1);
-  mpz_sub_ui(qq, q, 1);
-  //gmp_printf("before gcd pp = %Zd qq = %Zd\n", pp, qq);
-  gcd(gcd_e, pp, qq);
-  mpz_mul(ee, pp, qq);
-  mpz_fdiv_q(lambdan, ee, gcd_e);
-  printf("p_bits = %lu ... q_bits = %lu\n", p_bits, q_bits);
-  mpz_urandomb(pre_e, state, nbits); // generatre random number compare w/
-  gcd(test, pre_e, lambdan);
-  while (mpz_cmp_ui(test, 1)) { //gcd of random
-          mpz_urandomb(pre_e, state, nbits);
-          gcd(test, pre_e, lambdan);
-  }
-  mpz_set(e, pre_e);*/
-  // gmp_printf("e = %Zd ... lambdan = %Zd\n", e, lambdan);
-  // mpz_clears(test, lambdan, pre_e, gcd_e, pp, qq, NULL);
-  //  testing for mpz_make_priv
+  printf("make primes are done\n");
+  mpz_mul(n, p, q);             // n holds product
+  printf("n is done\n"); 
   return;
 }
 
@@ -239,11 +220,11 @@ void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
     mpz_export(block, deref_size, 1, sizeof(*(block + 0)), 1, 0,
                m); // m to block
     // printf("decrypted block: %s\n", block + 1); //for some
-    fprintf(outfile, "%s",
+    fprintf(outfile, "%s\n",
             block +
                 1); // for some reason accessing the 1 out of bounds (block + k)
   }
-  mpz_clears(ct, m, NULL);
+ 	 mpz_clears(ct, m, NULL);
   free(block);
   return;
 }
