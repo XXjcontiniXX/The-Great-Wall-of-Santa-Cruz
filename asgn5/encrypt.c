@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
     rsa_encrypt_file(stdin, output_file, n, e);
     fclose(output_file);
   } else if (((v | (1 << 2)) == v) &&
-             ((v | (1 << 3)) != v)) { // if message amd printf
+             ((v | (1 << 3)) != v)) { // if message amd printf.
     rsa_encrypt_file(message_file, stdout, n, e);
     fclose(message_file);
   } else { // if in_file and printf.
