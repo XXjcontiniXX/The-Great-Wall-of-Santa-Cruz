@@ -62,19 +62,19 @@ int main(int argc, char **argv) {
   }
   if (v == (v | (1 << 1))) {
     fprintf(stderr, "%s", help);
-    exit(1);
+    return 1;
   }
 
   pbfile = fopen(pub_file, "r");
   if (pbfile == NULL) {
       fprintf(stderr, "./encrypt: [ERROR] pointer to key file is NULL.\n");
-      exit(1);
+      return 1;
   }
   rsa_read_pub(n, e, s, username, pbfile);
   mpz_set_str(name_62, username, 62);
   if (!rsa_verify(name_62, s, e, n)) {
     fprintf(stderr, "./encrypt: [ERROR] Signature couldn't be verified.\n");
-    exit(1);
+    return 1; 
   }
   uint64_t str_s = mpz_sizeinbase(s, 2);
   uint64_t str_n = mpz_sizeinbase(n, 2);
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
              ((v | (1 << 3)) != v)) { // if message amd printf
     rsa_encrypt_file(message_file, stdout, n, e);
     fclose(message_file);
-  } else { // if in_file and printf
+  } else { // if in_file and printf.
     rsa_encrypt_file(stdin, stdout, n, e);
   }
 
