@@ -27,7 +27,7 @@ OPTFLAG  = -O2
 #SOURCES  = $(wildcard *.c)
 # Specify the C source files manually. May be useful if you
 # don't want to compile *all* the C files together.
-SOURCES   = dreidel.c play-dreidel.c mtrand.c
+SOURCES   = dreidel.c play-dreidel.c mtrand.c 
 
 # Each .c file has a corresponding .o file
 OBJECTS  = $(SOURCES:%.c=%.o)

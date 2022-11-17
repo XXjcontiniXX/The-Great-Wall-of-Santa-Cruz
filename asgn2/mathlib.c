@@ -35,18 +35,6 @@ static double Exp(double x) {
 }
 
 
-//int main(void) {
-//	double d, L;
-//	L = .999999;
-//	d = my_arcsin(L);
-//	printf("Value is: % 3.9lf\n", d);
-//	return 0;	
-
-//}
-
-
-
-
 double my_sin(double x) {
 	double total = 0;
 	double top = 1;

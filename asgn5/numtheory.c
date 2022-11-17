@@ -23,10 +23,7 @@ void gcd(mpz_t d, mpz_t a, mpz_t b) {
             bb); // b = a (mod b) // could be an issue with setting b += foo
     mpz_set(aa, t);
   }
-  mpz_set(d, aa); // d = a // return d
-  //
-  // mpz_fdiv_q_ui(ans, L, 2);
-  // gmp_printf("answer is %Zd\n", d);
+  mpz_set(d, aa); // d = a //
   mpz_clears(t, aa, bb, NULL);
   //
 }
@@ -109,14 +106,10 @@ bool is_prime(mpz_t n, uint64_t iters) {
     mpz_pow_ui(m, two,
                s); //  always m = 2^s TODO MAYBE find a diff way to xponentiate
     mpz_mod(remainder, n_, m); // remainder = n - 1 (mod m^s)
-    // gmp_printf("%Zd is dividend %Zd is divisor remainder is %Zd and s is
-    // %d\n", n_, m, remainder, s);
     if (!mpz_cmp_ui(remainder, 0)) { // remainder == 0
       mpz_fdiv_q(r, n_, m);
       mpz_mod(c, r, two);
       if (!mpz_cmp_ui(c, 1)) {
-        // gmp_printf("n-1 is: %Zd /// n-1 mod %Zd = %Zd. r = %Zd and s is
-        // %d\n", n_, m, remainder, r, s);
         break;
       }
     }
@@ -125,7 +118,6 @@ bool is_prime(mpz_t n, uint64_t iters) {
   }
 
   for (uint64_t i = 1; i <= iters; i++) {
-    // printf("uh oh");
     mpz_urandomm(rand, state, n_);
     if (!(mpz_cmp_ui(rand, 2) < 0)) { // if rand < 2
       mpz_set(a, rand);               // a = rand
@@ -163,15 +155,12 @@ void make_prime(mpz_t p, uint64_t bits, uint64_t iters) {
   mpz_set_ui(p, 10); // 10 is just a random composite number
   mpz_set_ui(two, 2);
   mpz_urandomb(pre_p, state, bits);
-  // gmp_printf("p = %Zd and doesn't work with is prime bruh\n", p);
-  mpz_pow_ui(msb, two, bits);
-  mpz_setbit(msb, 0);
+  mpz_pow_ui(msb, two, bits);  // msb mask
+  mpz_setbit(msb, 0); // odd mask
   while (!is_prime(pre_p, iters) || !is_prime(p, iters)) {
     mpz_urandomb(pre_p, state, bits);
     mpz_ior(p, pre_p, msb);
   }
-  // gmp_printf("mask = %Zd ... prime = %Zd\n", msb, pre_p);
-  // gmp_printf("masked prime: %Zd\n", p);
   mpz_clears(pre_p, msb, two, NULL);
   return;
 }
