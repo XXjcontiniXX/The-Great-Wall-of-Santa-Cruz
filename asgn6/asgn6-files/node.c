@@ -3,16 +3,33 @@
 #include <stdint.h>
 #include "str.h"
 #include "node.h"
+/*
+struct Node {
+    char *oldspeak;
+    char *newspeak;
+    Node *next;
+    Node *prev;
+};
+*/
 
 Node *node_create(char *oldspeak, char *newspeak) {
 	Node *node = (Node *)malloc(sizeof(Node));
 	if (node) {
-		char *old_speak = (char*)malloc((sizeof(char) * strlen_(oldspeak)) + sizeof(char));
-        	char *new_speak = (char*)malloc((sizeof(char) * strlen_(newspeak)) + sizeof(char));
-		strcpy_(old_speak, oldspeak);
-		strcpy_(new_speak, newspeak);
-		node->oldspeak = old_speak;
-		node->newspeak = new_speak;	
+		if (oldspeak != NULL) {
+			char *old_speak = (char*)malloc((sizeof(char) * strlen_(oldspeak)) + sizeof(char));
+        		char *new_speak = (char*)malloc((sizeof(char) * strlen_(newspeak)) + sizeof(char));
+			strcpy_(old_speak, oldspeak);
+			strcpy_(new_speak, newspeak);
+			node->oldspeak = old_speak;
+			node->newspeak = new_speak;
+		}else{
+			char *sentinal1 = (char*)malloc((sizeof(char) * 10));
+			char *sentinal2 = (char*)malloc((sizeof(char) * 10));
+			node->oldspeak = sentinal1;
+			node->newspeak = sentinal2;
+		}
+		node->prev = NULL;
+	        node->next = NULL;	
 	}
 	return node;
 }
@@ -20,7 +37,7 @@ Node *node_create(char *oldspeak, char *newspeak) {
 void node_delete(Node **n) {
 	if (*n) {
 		free((*n)->oldspeak);	
-		free((*n)->newspeak);	
+		free((*n)->newspeak);
 		free(*n);
 		*n = NULL;
 	}

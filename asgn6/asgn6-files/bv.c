@@ -9,6 +9,7 @@ struct BitVector {
  };
 
 
+
 void bv_print(BitVector *bv) {
 	for (uint32_t i = 0; i < bv_length(bv) * 64; i++) {
 		if (i % 64 == 0) {
@@ -23,12 +24,15 @@ void bv_print(BitVector *bv) {
 
 BitVector *bv_create(uint32_t length) {
 	BitVector *bv = (BitVector *)malloc(sizeof(BitVector));
-	bv->length = length;
-	bv->vector = (uint64_t*)calloc(length, sizeof(uint64_t));
-	if (bv->vector == NULL) {
-		return NULL;
+	if (bv) {	
+		bv->length = length;
+		bv->vector = (uint64_t*)calloc(length, sizeof(uint64_t));
+		if (bv->vector == NULL) {
+			return NULL;
+		}
+		return bv;
 	}
-	return bv;
+	return NULL;
 }
 
 void bv_delete(BitVector **bv) {

@@ -5,6 +5,10 @@
 #include "ll.h"
 #include <stdbool.h>
 
+
+uint64_t seeks; // Number of seeks performed.
+uint64_t links;
+
 struct LinkedList {
 	uint32_t length;
 	Node * head ; // Head sentinel node .
@@ -29,22 +33,23 @@ LinkedList *ll_create(bool mtf) {
 }
 
 void ll_delete(LinkedList **ll) {
-	if (*ll) {
-		Node **curr = &((*ll)->head);
-		while ((*curr)->next != NULL) { 
-			Node **next = NULL; // init next
-			next = &((*curr)->next); // next equals current 
-			node_delete(curr); // delete what curr referenced
-			curr = next; // curr now references the next node
-		}
-		node_delete(&(*ll)->tail); // since the tail->next == null we have to delete it manually
-		*ll = NULL;
+	Node *next = (*ll)->head; // next
+	while (next != (*ll)->tail) { 
+		Node *curr = NULL;
+		curr = next; // curr becomes one more than last iterations
+		next = curr->next; // next becomes one more than this iteration
+		node_delete(&curr); // delete one more than last iteration
 	}
+	node_delete(&((*ll)->tail)); // since the tail->next == null we have to delete it manually		
+	*ll = NULL;
+	
 
 }
 
 Node *ll_lookup(LinkedList *ll, char *oldspeak) {
+	seeks += 1;
 	for (Node *curr = (ll->head)->next; curr != ll->tail; curr = curr->next) {
+		links += 1;
 		if (strcmp_(curr->oldspeak, oldspeak) == 1) {
 			if (ll->mtf && ((ll->head))->next != curr) {
 				Node *second = ((ll->head)->next); // the original first node
@@ -96,4 +101,8 @@ void ll_print(LinkedList *ll) {
  
 }
 
-void ll_stats(uint32_t *n_seeks, uint32_t *n_links);
+void ll_stats(uint32_t *n_seeks, uint32_t *n_links) {
+	*n_seeks = seeks;
+	*n_links = links;
+	return;	
+}
