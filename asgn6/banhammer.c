@@ -74,6 +74,7 @@ int main(int argc, char **argv) {
 	Parser *p_dict = parser_create(dict);
 	while (next_word(p_dict, buffer1)){
 		next_word(p_dict, buffer2);
+		bf_insert(bf, buffer1);
 		ht_insert(ht, buffer1, buffer2);
 	}
 	
@@ -96,17 +97,16 @@ int main(int argc, char **argv) {
 	}
 	
 	if (ll_length(ll_badspeak) >= 1 && ll_length(ll_oldspeak) >= 1) {
+		printf("%s", mixspeak_message);
 		ll_print(ll_badspeak);
 		ll_print(ll_oldspeak);
-		printf("You did mixedspeak\n");
 	}else if(ll_length(ll_badspeak) >= 1) {
-		printf("You did badspeak\n");
+		printf("%s", badspeak_message);
 		ll_print(ll_badspeak);
 	
-	}else{
+	}else if (ll_length(ll_oldspeak) >= 1){
+		printf("%s", goodspeak_message);
 		ll_print(ll_oldspeak);
-		printf("You did goodspeak (needs correction tho)\n");
-	
 	}
 	return 0;
 }
