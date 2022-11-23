@@ -11,6 +11,6 @@
     `-h`          : Display program synopsis and usage.   
   
 ## Maximum values
-  There are no maximum values for either of the two options with an argument, juts like banhammer-dist values exceeding one quintillion will result in a segfault. 
+  There are no maximum values for either of the two options that accept arguments, just like banhammer-dist, values exceeding one quintillion will result in a segfault. 
 ## node\_create usage:  
    NULL passed into the oldspeak argument will create a sentinal node where the oldspeak and newspeak field will point to NULL.
