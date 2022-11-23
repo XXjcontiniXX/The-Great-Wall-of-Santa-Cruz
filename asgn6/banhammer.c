@@ -15,9 +15,9 @@ int main(int argc, char **argv) {
   int opt = 0;
   uint8_t v = 0;
   char help[] =
-      "Usage: ./banhammer [options]  \n./banhammer will read in words from stdin, identify any badspeak or old speak and output an  \nappropriate punishment message. The badspeak and oldspeak (with the newspeak translation)\n  that caused the punishment will be printed after the message. If statistics are enabled\n  punishment messages are suppressed and only statistics will be printed.\n    -t <ht_size>: Hash table size set to <ht_size>. (default: 10000)    \n-f <bf_size>: Bloom filter size set to <bf_size>. (default 2^19)\n    -s          : Enables the printing of statistics.    \n-m          : Enables move-to-front rule.    \n-h          : Display program synopsis and usage.\n";
-	uint32_t bf_size = 524288; 
-	uint32_t ht_size = 10000;
+      "Usage: ./banhammer [options]  \n./banhammer will read in words from stdin, identify any badspeak or old speak and output an  \nappropriate punishment message. The badspeak and oldspeak (with the newspeak translation)\n  that caused the punishment will be printed after the message. If statistics are enabled\n  punishment messages are suppressed and only statistics will be printed.\n   -t <ht_size>: Hash table size set to <ht_size>. (default: 10000)    \n   -f <bf_size>: Bloom filter size set to <bf_size>. (default 2^19)\n   -s          : Enables the printing of statistics.    \n   -m          : Enables move-to-front rule.    \n   -h          : Display program synopsis and usage.\n";
+	uint32_t bf_length = 8192;
+	uint32_t ht_length = 10000;
 	bool mtf = false;
 	FILE *badspeak;
 	FILE *dict;
@@ -25,10 +25,10 @@ int main(int argc, char **argv) {
 	while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
 		switch (opt) {
 			case 't':
-				ht_size = strtoul(optarg, NULL, 10);
+				ht_length = strtoul(optarg, NULL, 10);
       				break;
     			case 'f':
-				bf_size = strtoul(optarg, NULL, 10);
+				bf_length = (strtoul(optarg, NULL, 10)) / 64;
       				break;
     			case 's':
 				v = v | (1 << 0); // if v == 1 print stats
@@ -55,8 +55,8 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	BloomFilter *bf = bf_create(bf_size);
-	HashTable *ht = ht_create(ht_size, mtf);
+	BloomFilter *bf = bf_create(bf_length);
+	HashTable *ht = ht_create(ht_length, mtf);
 	
 
 	badspeak = fopen("badspeak.txt", "r");
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 		bf_insert(bf, buffer1);
 		ht_insert(ht, buffer1, buffer2);
 	}
-	
+	//bf_print(bf);	
 	LinkedList *ll_badspeak = ll_create(false);
 	LinkedList *ll_oldspeak = ll_create(false);
 
@@ -95,7 +95,62 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
-	
+	if (v == 1) {
+		uint32_t ht_keys;
+		uint32_t ht_hits;
+		uint32_t ht_misses;
+		uint32_t ht_examined; // might be n_misses + n_hits
+		ht_stats(ht, &ht_keys, &ht_hits, &ht_misses, &ht_examined);
+		
+		uint32_t bf_keys;
+		uint32_t bf_hits;
+		uint32_t bf_misses;
+		uint32_t bf_examined;
+		bf_stats(bf, &bf_keys, &bf_hits, &bf_misses, &bf_examined);
+
+		printf("ht keys: %u\n", ht_keys); // could see issues do to the incrementing
+		printf("ht hits: %u\n", ht_hits);
+		printf("ht misses: %u\n", ht_misses);
+		printf("ht probes: %u\n", ht_examined); // might be ht_examined
+		printf("bf keys: %u\n", bf_keys); 
+		printf("bf hits: %u\n", bf_hits);
+		printf("bf misses: %u\n", bf_misses);
+		printf("bf bits examined: %u\n", bf_examined);
+		double bits_examined_per_miss;
+		double false_positives;
+		double avg_seek_length;
+		double bf_load;
+			
+		if (bf_misses == 0) {
+			bits_examined_per_miss = 0;
+		}else{
+			bits_examined_per_miss = ((double)(bf_examined) - (N_HASHES * bf_hits)) / (double)(bf_misses);
+		}
+
+		printf("Bits examined per miss: %.06f\n", bits_examined_per_miss);
+
+		if (bf_hits == 0) {
+			false_positives = 0;
+		}else{
+			false_positives = (double)(ht_misses) / (double)(bf_hits);
+		}
+		printf("False positives: %.06f\n", false_positives);
+		if (((ht_hits) + (ht_misses)) == 0) {
+			avg_seek_length = 0;
+		}else{
+			avg_seek_length = (double)(ht_examined) / (double)((ht_hits) + (ht_misses));
+		}
+		printf("Average seek length: %.06f\n", avg_seek_length);
+		if (bf_size(bf) == 0) {
+			bf_load = 0;
+		}else{
+			bf_load = ((double)bf_count(bf)) / (double)(bf_size(bf));
+			
+		}
+		printf("Bloom filter load: %.06f\n", bf_load);
+		return 0;
+	}
+
 	if (ll_length(ll_badspeak) >= 1 && ll_length(ll_oldspeak) >= 1) {
 		printf("%s", mixspeak_message);
 		ll_print(ll_badspeak);
