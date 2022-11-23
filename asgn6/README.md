@@ -1,5 +1,5 @@
 # Introduction  
-Usage: ./banhammer [options]  
+### Usage: ./banhammer [options]  
   ./banhammer will read in words from stdin, identify any badspeak or old speak and output an  
   appropriate punishment message. The badspeak and oldspeak (with the newspeak translation)  
   that caused the punishment will be printed after the message. If statistics are enabled  
