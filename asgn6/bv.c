@@ -11,7 +11,7 @@ struct BitVector {
 
 
 void bv_print(BitVector *bv) {
-	for (uint32_t i = 0; i < bv_length(bv) * 64; i++) {
+	for (uint32_t i = 0; i < bv_length(bv); i++) {
 		if (i % 64 == 0) {
 			printf("\n");
 		}
@@ -25,7 +25,7 @@ void bv_print(BitVector *bv) {
 BitVector *bv_create(uint32_t length) {
 	BitVector *bv = (BitVector *)malloc(sizeof(BitVector));
 	if (bv) {
-		bv->length = length;
+		bv->length = length * 64;
 		bv->vector = (uint64_t*)calloc(length, sizeof(uint64_t));
 		if (bv->vector == NULL) {
 			return NULL;
@@ -49,18 +49,18 @@ uint32_t bv_length(BitVector *bv) {
 
 void bv_set_bit(BitVector *bv, uint32_t i) {
 	uint64_t mask = 1UL << (i % 64); // inverse mask
-	uint64_t chunk = ((i/64) % bv_length(bv)); // keeps big ass numbers inside of range 
+	uint64_t chunk = ((i/64) % (bv_length(bv)/64)); // keeps big ass numbers inside of range 
 	*((bv->vector) + (chunk)) = *((bv->vector) + (chunk)) | mask; // sets bit
 }
 
 void bv_clr_bit(BitVector *bv, uint32_t i) {
-	uint64_t chunk = ((i/64) % bv_length(bv));
+	uint64_t chunk = ((i/64) % (bv_length(bv)/64));
 	uint64_t mask =  ~(1UL << (i % 64)); // mask
         *((bv->vector) + (chunk)) = *((bv->vector) + (chunk)) & mask; // unsets bit
 }
 
 uint8_t bv_get_bit(BitVector *bv, uint32_t i) {
-	uint64_t chunk = ((i/64) % bv_length(bv));
+	uint64_t chunk = ((i/64) % (bv_length(bv)/64));
 	uint64_t mask = 1UL << (i % 64); // mask
 	 if (mask == (bv->vector[chunk] & mask)) { // if mask stays the same then theres 
 		return 1;

@@ -1,10 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <ctype.h>
-#include "str.h"
 #include "parser.h"
 
+size_t strlen_(const char *s);
 // #define MAX_PARSER_LINE_LENGTH 1000
 struct Parser {
 	FILE *f;
@@ -26,10 +27,6 @@ Parser *parser_create(FILE *f) {
 bool next_word(Parser *p, char *word) {
 	int c;
 	uint32_t line_length = (uint32_t)(strlen_(p->current_line));
-	//printf("\n");
-	//printf("length: %u\np->line_offset: %u\n", line_length, p->line_offset);
-	//printf("full text: %s\n", p->current_line);
-	//printf("\n");
 	bool present = false;
 	bool only_good = true;
 	while (true) {
@@ -92,5 +89,7 @@ bool next_word(Parser *p, char *word) {
 	return true;
 }
 
-void parser_delete(Parser **p);
+void parser_delete(Parser **p) {
+	(*p) = NULL;
+}
 	
