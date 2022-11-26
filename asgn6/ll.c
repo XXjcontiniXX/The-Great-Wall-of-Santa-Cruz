@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "str.h"
 #include "ll.h"
 #include <stdbool.h>
 
@@ -16,6 +15,21 @@ struct LinkedList {
 	bool mtf ;
  };
 
+
+int strcmp_(const char *s1, const char *s2) {
+        uint32_t i = 0;
+        if (s1 == NULL && s2 == NULL) {
+                return 1;
+        }
+        for (; s1[i] != '\0'; i++) {
+                uint8_t sum =  (unsigned char)(s1[i]) - (unsigned char)(s2[i]);
+                if (sum != 0) {
+                        return 0;
+                }
+
+        }
+        return !((unsigned char)(s1[i]) - (unsigned char)(s2[i])); // only returns 1 when same ending                                                                      // else some random number
+}
 
 LinkedList *ll_create(bool mtf) {
 	LinkedList *ll = (LinkedList *)malloc(sizeof(LinkedList));	

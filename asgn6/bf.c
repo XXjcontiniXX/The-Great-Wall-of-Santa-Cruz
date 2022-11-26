@@ -3,7 +3,6 @@
 #include "bf.h"
 #include "bv.h"
 #include <stdint.h>
-#include "str.h"
 #include "city.h"
 #define N_HASHES 5
 
@@ -52,7 +51,7 @@ void bf_delete(BloomFilter **bf) {
 }
 
 uint32_t bf_size(BloomFilter *bf) {
-	return 64*bv_length(bf->filter); // how many uin64s it can hold times 64 for the bits
+	return bv_length(bf->filter); // how many uin64s it can hold times 64 for the bits
 
 }
 
@@ -62,18 +61,18 @@ void bf_insert(BloomFilter *bf, char *oldspeak) {
 	for (int j = 0; j < 5; j++) {
         	index = hash(bf->salts[j], oldspeak); // what bv index to set (subject to change)
 		bv_set_bit(bf->filter, index); // sets that index
-                }
+        }
 	return;
 }
 
 
 bool bf_probe(BloomFilter *bf, char *oldspeak){
 	uint64_t index;
-	bf->n_bits_examined = bf->n_bits_examined + 1;
 	for (int i = 0; i < 5; i++) {
+		bf->n_bits_examined = bf->n_bits_examined + 1;
 		index = hash(bf->salts[i], oldspeak);
 		if (bv_get_bit(bf->filter, index) == 0) { // if 1 hash function def didn't hash str bye
-			bf->n_misses = bf->n_misses + 1;
+			bf->n_misses += 1;
 			return false;
 		}	
 	}
@@ -82,7 +81,7 @@ bool bf_probe(BloomFilter *bf, char *oldspeak){
 }
 
 uint32_t bf_count(BloomFilter *bf) {
-	uint32_t length = 64*bv_length(bf->filter);
+	uint32_t length = bv_length(bf->filter);
 	uint32_t j = 0;
 	for (uint32_t i = 0; i < length; i++) {
 		if (bv_get_bit(bf->filter, i)) {
