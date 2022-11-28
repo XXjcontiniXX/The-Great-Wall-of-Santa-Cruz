@@ -39,7 +39,15 @@ PriorityQueue *pq_create(uint32_t capacity) {
 	return q;
 }
 
-//void pq_delete(PriorityQueue **q);
+void pq_delete(PriorityQueue **q) {
+	if (*pq) {
+		free((*q)->freqs);
+		free((*q)->symbols);
+		free(*q);
+	}
+	(*q) = NULL;
+	return;
+}
 
 bool pq_empty(PriorityQueue *q) {
 	if (pq_size(q) == 0) {
