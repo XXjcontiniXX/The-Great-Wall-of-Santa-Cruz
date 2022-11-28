@@ -13,18 +13,6 @@ struct PriorityQueue {
 
 };
 
-uint32_t l_child(uint32_t n) {
-	        return ((2 * n) + 1);
-}
-
-uint32_t r_child(uint32_t n) {
-	        return ((2 * n) + 2);
-}
-
-uint32_t parent(uint32_t n) {
-	        return ((n - 1) / 2);
-}
-
 void swap_64(uint64_t *x, uint64_t *y) {
 	uint32_t t = *x;
 	*x = *y;
