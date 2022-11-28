@@ -40,12 +40,12 @@ PriorityQueue *pq_create(uint32_t capacity) {
 }
 
 void pq_delete(PriorityQueue **q) {
-	if (*pq) {
+	if ((*q)) {
 		free((*q)->freqs);
 		free((*q)->symbols);
 		free(*q);
+		*q = NULL;
 	}
-	(*q) = NULL;
 	return;
 }
 
@@ -107,9 +107,29 @@ bool enqueue(PriorityQueue *q, Node *n) {
 }			
 
 
-//bool dequeue(PriorityQueue *q, Node **n);
+bool dequeue(PriorityQueue *q, Node **n) {
+	if (pq_empty(q)) {
+		return false;
+	}else{
+		uint64_t frequency = q->freqs[0];
+		uint8_t symbol = q->symbols[0];
+		q->symbols[0] = 0;
+		q->freqs[0] = 0;
+		(*n) = node_create(symbol, frequency);
+			                        
+		for (uint32_t i = 0; i < q->offset && q->freqs[i + 1] != 0; i++) {
+			q->freqs[i] = q->freqs[i + 1];
+			q->freqs[i + 1] = 0;
+			q->symbols[i] = q->symbols[i + 1];
+			q->symbols[i + 1] = 0;
+		}
+		return true;
+	}
 
-	void pq_print(PriorityQueue *q) {
+
+}
+
+void pq_print(PriorityQueue *q) {
 	for (uint32_t i = 0; i < q->capacity; i++) {
 		if ((q->freqs)[i] != 0) {
 			Node *n = node_create((q->symbols)[i], (q->freqs)[i]);
