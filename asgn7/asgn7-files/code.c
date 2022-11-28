@@ -90,15 +90,14 @@ bool code_pop_bit(Code *c, uint8_t *bit) {
 	if (code_empty(c)) {
 		return false;
 	}
-	uint32_t chunk = (code_size(c) - 1) / 8;
-        uint32_t index = (code_size(c) - 1) % 8;
         c->top -= 1;
-	uint8_t ans = code_get_bit(c, chunk + index);
+	uint32_t index = code_size(c);
+	uint8_t ans = code_get_bit(c, index);
 	*bit = ans;
 	if (bit == NULL) {
 		fprintf(stderr, "Code.c: [ERROR] bit pointer is NULL.\n");
 	}
-	code_clr_bit(c, chunk + index);
+	code_clr_bit(c, index);
 	return true;
 }
 
