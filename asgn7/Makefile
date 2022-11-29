@@ -8,7 +8,7 @@ CFLAGS   = -Wall -Wpedantic -Werror -Wextra -Ofast
 
 all: encode decode
 
-test: node.o test.o # get rid of this jesus please
+test: node.o test.o pq.o code.o io.o# get rid of this jesus please
 	$(CC) -o $@ $^
 
 encode: $(OBJECTS)
