@@ -11,9 +11,12 @@ uint64_t bytes_read = 0;
 uint64_t bytes_written = 0;
 static uint8_t buffer[BLOCK];
 static uint8_t wbuffer[BLOCK];
+static uint8_t bufbuf[256];
 static uint32_t woffset = 0;
 static uint32_t last_byte = 0;
 static uint32_t offset = 0; 
+static uint32_t wdiff = 0;
+uint32_t loffset = 0;
 
 int read_bytes(int infile, uint8_t *buf, int nbytes) {
 	int i = 0;
@@ -65,7 +68,7 @@ void write_code(int outfile, Code *c) {
 	
        	woffset += code_size(c) - 1;
 	printf("%u.", woffset);
-	uint32_t loffset = woffset;
+	loffset = woffset;
 	if (!(woffset >= BLOCK * 8)) {
 		while (code_pop_bit(c, &bit)) { // stop when a code is empty
 			wbuffer[loffset/8] = wbuffer[loffset/8] | (bit << (7 - loffset % 8));
@@ -74,12 +77,16 @@ void write_code(int outfile, Code *c) {
 		woffset++;
 	}else{
 		printf("once");
-		uint8_t bufbuf[256];
-		while (loffset > BLOCK - 1 && code_pop_bit(c, &bit)) { // copy backend which doesn't fit into buffer into bufbuf
-			bufbuf[loffset/8] = bufbuf[loffset/8] | (bit << (7 - loffset % 8)); // but when loffset finally reaches within the range of the block
+		wdiff = loffset - ((BLOCK * 8) - 1);
+		uint8_t i = code_size(c) - 1;
+		while (loffset > (BLOCK * 8) - 1 && code_pop_bit(c, &bit)) { // copy backend which doesn't fit into buffer into bufbuf
+			printf("twice\n");
+			bufbuf[i/8] = bufbuf[i/8] | (bit << (7 - i % 8)); // but when loffset finally reaches within the range of the block
+			i--;
 			loffset--; // then end loop
 		}
 		while (code_pop_bit(c, &bit)) { // pop remaining bits into actual buffer
+			printf("never happen\n");
                         wbuffer[loffset/8] = wbuffer[loffset/8] | (bit << (7 - loffset % 8));
                         loffset--;
                 }
@@ -111,8 +118,10 @@ void flush_codes(int outfile) {
 	uint8_t block = 0;
 	if (woffset > BLOCK * 8) {
 		printf("woffset = %u\n", woffset);
-		write_bytes(outfile, wbuffer, ((woffset - 1) / 8) + 1); // woffset is in the next byte, so go back one
+		write_bytes(outfile, wbuffer, (loffset / 8) + 1); // woffset is in the next byte, so go back one							
+		write_bytes(outfile, bufbuf, wdiff);
 		woffset = 0;
+		loffset = 0;
 		return;
 	}
 						     //	                      |<--here, the woffset increase
@@ -126,8 +135,8 @@ void flush_codes(int outfile) {
 		woffset++;
 		printf("happen 8 times please\n");
 	}
-	printf("woffset flush = %u\n", woffset);
-	write_bytes(outfile, wbuffer, ((woffset - 1) / 8) + 1);
+	//printf("woffset flush = %u\n", woffset);
+	//write_bytes(outfile, wbuffer, ((woffset - 1) / 8) + 1);
 	woffset = 0;
 	return;
 }
