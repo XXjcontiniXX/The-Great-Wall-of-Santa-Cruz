@@ -69,7 +69,7 @@ void write_code(int outfile, Code *c) {
        	woffset += code_size(c) - 1;
 	printf("%u.", woffset);
 	loffset = woffset;
-	if (!(woffset >= BLOCK * 8)) {
+	if (!(woffset >= BLOCK * 8)) { // woffset cannot be 32768 or above
 		while (code_pop_bit(c, &bit)) { // stop when a code is empty
 			wbuffer[loffset/8] = wbuffer[loffset/8] | (bit << (7 - loffset % 8));
 			loffset--;
@@ -77,7 +77,7 @@ void write_code(int outfile, Code *c) {
 		woffset++;
 	}else{
 		printf("once");
-		wdiff = loffset - ((BLOCK * 8) - 1);
+		wdiff = loffset - ((BLOCK * 8) - 1); // will always be positive
 		uint8_t i = code_size(c) - 1;
 		while (loffset > (BLOCK * 8) - 1 && code_pop_bit(c, &bit)) { // copy backend which doesn't fit into buffer into bufbuf
 			printf("twice\n");
@@ -115,16 +115,20 @@ void write_code(int outfile, Code *c) {
 
 void flush_codes(int outfile) {
 	uint8_t byte = 0;
-	uint8_t block = 0;
+	//uint8_t block = 0;
 	if (woffset > BLOCK * 8) {
 		printf("woffset = %u\n", woffset);
 		write_bytes(outfile, wbuffer, (loffset / 8) + 1); // woffset is in the next byte, so go back one							
-		write_bytes(outfile, bufbuf, wdiff);
-		woffset = 0;
-		loffset = 0;
-		return;
+		while (wdiff % 8 != 0) {
+			bufbuf[wdiff / 8]  = bufbuf[wdiff / 8] | (byte << (7 - (wdiff % 8)));
+			wdiff++;
+		}
+		write_bytes(outfile, bufbuf, (wdiff / 8) + 1);
+		//woffset = 0;
+		//loffset = 0;
+
 	}
-						     //	                      |<--here, the woffset increase
+	/*	     //	                      |<--here, the woffset increase
 	if (woffset % 8 == 0) {
 		block = (woffset - 1) / 8;
 	}else{
@@ -137,6 +141,7 @@ void flush_codes(int outfile) {
 	}
 	//printf("woffset flush = %u\n", woffset);
 	//write_bytes(outfile, wbuffer, ((woffset - 1) / 8) + 1);
+	*/
 	woffset = 0;
 	return;
 }
