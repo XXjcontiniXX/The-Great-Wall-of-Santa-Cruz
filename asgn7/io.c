@@ -87,9 +87,9 @@ void write_code(int outfile, Code *c) {
 	if (code_empty(c)) { // if code size of c is 0 then quit
 		return;
 	}
-	if (code_size(c) == 8) {
+	/*if (c == 32511) {
 		printf("woffset: %u\n", woffset);
-	}
+	}*/
        	woffset += code_size(c) - 1;
 	//printf("%u.", woffset);
 	loffset = woffset;
@@ -99,14 +99,8 @@ void write_code(int outfile, Code *c) {
 			loffset--;
 		}
 		woffset++;
-		printf("%u.", woffset);
-		if (loffset < 9) {
-			for (uint8_t i = 0; i < 8; i++) {
-				printf("%u", wbuffer[i/8] | (bit << (7 - i % 8)));
-			}
-			printf("\n");
-		}
-		if (woffset > 32767) {
+
+		if (woffset == BLOCK * 8) {
 			flush_codes(outfile);
 		}
 	}else{
@@ -114,18 +108,20 @@ void write_code(int outfile, Code *c) {
 		wdiff = loffset - ((BLOCK * 8) - 1); // will always be positive
 		//uint8_t i = code_size(c) - 1;
 		uint8_t i = wdiff - 1;
+		printf("just a test\n");
 		while (loffset > (BLOCK * 8) - 1 && code_pop_bit(c, &bit)) { // copy backend which doesn't fit into buffer into bufbuf
-			//printf("twice\n");
+			printf("8 times\n");
 			bufbuf[i/8] = bufbuf[i/8] | (bit << (7 - i % 8)); // but when loffset finally reaches within the range of the block
 			//printf("bufbuf[%u//8]: %u\n", i/8, bufbuf[i/8]);
 			
 			for (uint8_t i = 0; i < 8; i++) {
-                         //       printf("bufbuf: %u bit %u\n", bufbuf[i/8] | (bit << (7 - i % 8)), bit);
+                               printf("%u\n", (bool)(bufbuf[i/8] & (bit << (7 - i % 8))));
                         }
-			
+			printf("\n");
 			i--;
 			loffset--; // then end loop
 		}
+
 		while (code_pop_bit(c, &bit)) { // pop remaining bits into actual buffer
 			//printf("bit: %u chunk: %u index (0 is on right): %u loffset: %u\n", bit, loffset / 8, (7 - loffset % 8), loffset);
                         wbuffer[loffset/8] = wbuffer[loffset/8] | (bit << (7 - loffset % 8)); // TODO you have yet to test this
@@ -145,21 +141,23 @@ void flush_codes(int outfile) {
 	uint8_t byte = 0;
 	//uint8_t block = 0;
 	//printf("happens after wbuffer\n");
-	if (woffset >= BLOCK * 8) {
-		//printf("woffset = %u\n", woffset);
+	if (woffset > BLOCK * 8) {
+		printf("woffset = %u\n", woffset);
 		write_bytes(outfile, wbuffer, BLOCK); // woffset is in the next byte, so go back one							
 		while (wdiff % 8 != 0) {
 			bufbuf[wdiff / 8]  = bufbuf[wdiff / 8] | (byte << (7 - (wdiff % 8)));
 			wdiff++;
-			//printf("None or < 8 times\n");
+			printf("None or < 8 times\n");
 		}
 		//printf("bufbuf[0]: %u", bufbuf[1]);
-		if (woffset > BLOCK * 8) {
-			write_bytes(outfile, bufbuf, (wdiff / 8) + 1);
-		}
+		
+		write_bytes(outfile, bufbuf, (wdiff / 8));
+		
 		//woffset = 0;
 		//loffset = 0;
 
+	}else if (woffset == BLOCK * 8) { 
+		write_bytes(outfile, wbuffer, BLOCK);
 	}else{
 		//printf("flushing the normal\n");
 		//printf("woffset for normal should be 128: %u\n", woffset);
@@ -177,7 +175,6 @@ void flush_codes(int outfile) {
 	// TODO dont forget about situation where only a couple codes have been put in that means 
 	// we should write starting at woffset to the end of that byte and then writebytes at woffset
 	// unless woffset % 8 because then the byte we want is full and its in a new one
-	printf("get here twice too\n");
 	woffset = 0;
 	return;
 }
