@@ -106,6 +106,7 @@ void write_code(int outfile, Code *c) {
 		woffset++;
 
 		if (woffset == BLOCK * 8) {
+			printf("three times\n");
 			flush_codes(outfile);
 		}
 	}else{
@@ -121,7 +122,7 @@ void write_code(int outfile, Code *c) {
                                 bufbuf[i/8] = bufbuf[i/8] | (bit << (7 - i % 8));
                         }else{
                                 bufbuf[i/8] = bufbuf[i/8] &  ~((one << (7 - i % 8)));    // 0001 0000 --> 1110 1111 &
-                        }	
+                        }
 
 			//
 			//bufbuf[i/8] = bufbuf[i/8] | (bit << (7 - i % 8)); // but when loffset finally reaches within the range of the block
@@ -159,7 +160,8 @@ void flush_codes(int outfile) {
 	//uint8_t block = 0;
 	//printf("happens after wbuffer\n");
 	if (woffset > BLOCK * 8) {
-		printf("woffset = %u\n", woffset);
+		printf("flush() woffset > BLOCK * 8\n");
+		//printf("woffset = %u\n", woffset);
 		write_bytes(outfile, wbuffer, BLOCK); // woffset is in the next byte, so go back one							
 		while (wdiff % 8 != 0) {
 			bufbuf[wdiff / 8]  = bufbuf[wdiff / 8] & ~(one << (7 - (wdiff % 8)));
@@ -169,32 +171,34 @@ void flush_codes(int outfile) {
 		//printf("bufbuf[0]: %u", bufbuf[1]);
 		
 		write_bytes(outfile, bufbuf, (wdiff / 8));
-		
-		//woffset = 0;
-		//loffset = 0;
+		woffset = woffset - (BLOCK * 8);
 
 	}else if (woffset == BLOCK * 8) { 
-		printf("this should twice\n");
+		printf("flush woffset == BLOCK *8\n");
 		write_bytes(outfile, wbuffer, BLOCK);
+		woffset = 0;
 	}else{
-		printf("flushing the normal\n");
+		if (woffset == 0) {
+			return;
+		}
+		printf("flush() woffset < BLOCK * 8\n");
 		printf("woffset: %u\n", woffset);
 		//printf("woffset for normal should be 128: %u\n", woffset);
-		while (woffset % 8 != 0) {
-			printf("woffset for normal should be 128: %u\n", woffset);
-			wbuffer[woffset / 8]  = wbuffer[woffset / 8] & ~(one << (7 - (woffset % 8)));
-			woffset++;
+		uint32_t tmp_woffset = woffset;
+		while (tmp_woffset % 8 != 0) {
+			printf("wbuffer val: %u\n", wbuffer[tmp_woffset / 8]);
+			wbuffer[tmp_woffset / 8]  = wbuffer[tmp_woffset / 8] & ~(one << (7 - (tmp_woffset % 8)));
+			tmp_woffset++;
 			printf("5 times\n");
 		}
-		
+		// woffset might need to be woffset += 1;
 		//printf("wbuffer[0] %u wbuffer[1] %u\n", wbuffer[0], wbuffer[1]);
-		write_bytes(outfile, wbuffer, woffset/8); // woffset never greater than 326
+		write_bytes(outfile, wbuffer, ((woffset - 1) /8) + 1); // woffset never greater than 326
 	
 	}
 
 	// TODO dont forget about situation where only a couple codes have been put in that means 
 	// we should write starting at woffset to the end of that byte and then writebytes at woffset
 	// unless woffset % 8 because then the byte we want is full and its in a new one
-	woffset = 0;
 	return;
 }
