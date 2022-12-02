@@ -89,9 +89,10 @@ void write_code(int outfile, Code *c) {
 	stoffset = woffset;
 	if (woffset < 32768) {
        		while (code_pop_bit(c, &bit)) {
-                	if (bit == 1) {
+			
+			if (bit == 1) {
                                 	wbuffer[stoffset/8] = wbuffer[stoffset/8] | (bit << (7 - stoffset % 8));
-                        	}else{
+			}else{
                                 	wbuffer[stoffset/8] = wbuffer[stoffset/8] &  ~((one << (7 - stoffset % 8)));    // 0001 0000 --> 1110 1111 &
                         	}
 			stoffset = stoffset == 0 ? 0 : stoffset - 1;
@@ -100,6 +101,7 @@ void write_code(int outfile, Code *c) {
 		if (woffset == 32767) { // the bit which has been changed is the last bit flush it
 			flush_codes(outfile);
 		}
+		
 	}else{ // if there is an overflow, e.g. woffset == 32678, we know the previous bit changed is woffset - code_size(c), so until and exlcuding index woffset - code_size(c) write
         
 		uint32_t nbytes = code_size(c);
@@ -150,13 +152,17 @@ void flush_codes(int outfile) {
 		write_bytes(outfile, wbuffer, (woffset/8) + 1);
 		return;
 	}
+	if  (first_call) {
+		woffset--;
+	}
+
 	flusher = woffset + 1;
 	while (flusher % 8 != 0) { // if need to flush case
 		wbuffer[flusher / 8]  = wbuffer[flusher / 8] & ~(one << (7 - (flusher % 8)));
 		flusher++;
 	}
-
-	write_bytes(outfile, wbuffer, ((woffset - 1) / 8) + 1); // writes like such no matter what
+	
+	write_bytes(outfile, wbuffer, flusher / 8);
         return;	
 
 }
