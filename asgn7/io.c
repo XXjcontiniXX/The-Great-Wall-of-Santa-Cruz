@@ -24,15 +24,11 @@ static bool first_call = true;
 int read_bytes(int infile, uint8_t *buf, int nbytes) {
 	int i = 0;
 	int j;
-	//int prev = 0;
-	while (nbytes - i > 0 && (j = read(infile, buf + i, nbytes - i)) > 0) {
-		//prev = j;
+
+	while (nbytes - i > 0 && (j = read(infile, buf + i, nbytes - i)) > 0) { // if read n bytes read n less bytes
 		i += j;
 	}
 
-	/*if (prev < 4096) { // and j = 0 which it must
-		i--;
-	}*/
 	bytes_read += i;
 	return i;	
 }
@@ -40,11 +36,9 @@ int read_bytes(int infile, uint8_t *buf, int nbytes) {
 int write_bytes(int outfile, uint8_t *buf, int nbytes) {
 	int i = 0;
 	int j;
-	//printf("buf[0] = %u nbytes = %u\n", buf[0], nbytes);
 	
-	while (nbytes - i > 0 && (j = write(outfile, buf + i, nbytes - i)) > 0) {
+	while (nbytes - i > 0 && (j = write(outfile, buf + i, nbytes - i)) > 0) {  // if write n bytes then write n less bytes
         	i += j;
-		printf("j = %u\n", j);
         }
 		
         bytes_written += i;
@@ -58,13 +52,6 @@ bool read_bit(int infile, uint8_t *bit) {
         }
 	if (offset >= BLOCK * 8 || offset == 0) { // 
 		last_byte = read_bytes(infile, buffer, BLOCK); // bufdex cannot be more than 4096
-		//printf("last_byte = %u\n", last_byte);
-		/*
-		if (last_byte < 5) {
-			for (uint8_t i = 0; i < last_byte; i++) {
-				printf("buffer[%u] = %u\n", i, buffer[i]); 
-			}
-		} */
 		offset = 0;
 		if (last_byte == 0) {
 			return false;
@@ -121,7 +108,7 @@ void write_code(int outfile, Code *c) {
 		woffset = 0;
 		first_call = true;
         	while (code_size(c) > 0 && code_pop_bit(c, &bit)) { // if there were more bits to pop and woffset is ready to set a bit outside the block
-                	printf("%u.", bit);
+               
 			if (bit == 1) {
                         	        bufbuf[index/8] = bufbuf[index/8] | (bit << (7 - index % 8));
                         	}else{
@@ -134,8 +121,7 @@ void write_code(int outfile, Code *c) {
                 	index--;
         	}
 		woffset++; // ^^^ the break statment is blocking the last increment duh
-		printf("bufbuf[127/8]: %u\n", bufbuf[127/8]);
-		// woffset contains num of elements not the index
+		
 		uint32_t windex = 32767;
 		while (pre_woffset != windex && code_pop_bit(c, &bit)) { // if there were more bits to pop and woffset is ready to set a bit outside the block
 			if (bit == 1) {
@@ -149,9 +135,7 @@ void write_code(int outfile, Code *c) {
 		write_bytes(outfile, wbuffer, BLOCK);
 
         	if (nbytes != 0) {
-			//printf("bufbuf[127/8]: %u\n", bufbuf[127/8]);
                 	memcpy(wbuffer, bufbuf, 256);
-			//printf("wbuffer[0]: %u\n", wbuffer[0]);
         	}
 	
 	}
@@ -161,33 +145,19 @@ void write_code(int outfile, Code *c) {
 void flush_codes(int outfile) {
         uint8_t one = 1;
 	uint32_t flusher = 0;
-	//bool needs_sth = false;
-        //if (woffset + 1 % 8 != 0) { /// wbuffer will always be less than 32768
-	if (woffset == 32767) {
+
+	if (woffset == 32767) {  // if full case
 		write_bytes(outfile, wbuffer, (woffset/8) + 1);
 		return;
 	}
 	flusher = woffset + 1;
-	while (flusher % 8 != 0) {
+	while (flusher % 8 != 0) { // if need to flush case
 		wbuffer[flusher / 8]  = wbuffer[flusher / 8] & ~(one << (7 - (flusher % 8)));
 		flusher++;
 	}
 
-	write_bytes(outfile, wbuffer, ((woffset - 1) / 8) + 1);
+	write_bytes(outfile, wbuffer, ((woffset - 1) / 8) + 1); // writes like such no matter what
         return;	
 
-	/*
-	
-        if (woffset + 1 % 8 != 0) { /// wbuffer will always be less than 32768 
-	 	//needs_sth = true;
-		wbuffer[woffset + 1 / 8]  = wbuffer[woffset + 1 / 8] & ~(one << (7 - ((woffset + 1) % 8)));
-                woffset++;
-	}else{
-		write_bytes(outfile, wbuffer, (woffset/8) + 1);
-		return;
-	}
-
-        write_bytes(outfile, wbuffer, ((woffset - 1)/8) + 1);
-	*/
 }
 
