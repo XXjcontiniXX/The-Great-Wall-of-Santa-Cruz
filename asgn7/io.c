@@ -160,14 +160,23 @@ void write_code(int outfile, Code *c) {
 
 void flush_codes(int outfile) {
         uint8_t one = 1;
+	uint32_t flusher = 0;
 	//bool needs_sth = false;
         //if (woffset + 1 % 8 != 0) { /// wbuffer will always be less than 32768
-	if (woffset == ) {
-	
-	
+	if (woffset == 32767) {
+		write_bytes(outfile, wbuffer, (woffset/8) + 1);
+		return;
 	}
-	
-	
+	flusher = woffset + 1;
+	while (flusher % 8 != 0) {
+		wbuffer[flusher / 8]  = wbuffer[flusher / 8] & ~(one << (7 - (flusher % 8)));
+		flusher++;
+	}
+
+	write_bytes(outfile, wbuffer, ((woffset - 1) / 8) + 1);
+        return;	
+
+	/*
 	
         if (woffset + 1 % 8 != 0) { /// wbuffer will always be less than 32768 
 	 	//needs_sth = true;
@@ -179,5 +188,6 @@ void flush_codes(int outfile) {
 	}
 
         write_bytes(outfile, wbuffer, ((woffset - 1)/8) + 1);
+	*/
 }
 
