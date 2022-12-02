@@ -93,6 +93,7 @@ void write_code(int outfile, Code *c) {
        	woffset += code_size(c) - 1;
 	//printf("%u.", woffset);
 	loffset = woffset;
+	
 	if (!(woffset >= BLOCK * 8)) { // woffset cannot be 32768 or above
 		while (code_pop_bit(c, &bit)) { // stop when a code is empty
 			if (bit == 1) {
@@ -110,13 +111,15 @@ void write_code(int outfile, Code *c) {
 			flush_codes(outfile);
 		}
 	}else{
-		//printf("once");
+		printf("woffset in splitt: %u\n", woffset);
 		wdiff = loffset - ((BLOCK * 8) - 1); // will always be positive
 		//uint8_t i = code_size(c) - 1;
-		uint8_t i = wdiff - 1;
-		printf("just a test\n");
-		while (loffset > (BLOCK * 8) - 1 && code_pop_bit(c, &bit)) { // copy backend which doesn't fit into buffer into bufbuf
-			printf("8 times\n");
+		wdiff -= 1;
+		uint8_t i = wdiff;
+		// change right here////////////////
+		//printf("just a test\n");
+		while (loffset > (BLOCK * 8) - 1 && code_pop_bit(c, &bit)) { // copy backend which doesn't fit into buffer into bufbuf	
+			//printf("8 times\n");
 			//
 			if (bit == 1) {
                                 bufbuf[i/8] = bufbuf[i/8] | (bit << (7 - i % 8));
@@ -128,10 +131,10 @@ void write_code(int outfile, Code *c) {
 			//bufbuf[i/8] = bufbuf[i/8] | (bit << (7 - i % 8)); // but when loffset finally reaches within the range of the block
 			//printf("bufbuf[%u//8]: %u\n", i/8, bufbuf[i/8]);
 			
-			for (uint8_t i = 0; i < 8; i++) {
-                               printf("%u\n", (bool)(bufbuf[i/8] & (bit << (7 - i % 8))));
-                        }
-			printf("\n");
+			//for (uint8_t i = 0; i < 8; i++) {
+                          //     printf("%u\n", (bool)(bufbuf[i/8] & (bit << (7 - i % 8))));
+                        //}
+			//printf("\n");
 			i--;
 			loffset--; // then end loop
 		}
@@ -171,7 +174,8 @@ void flush_codes(int outfile) {
 		//printf("bufbuf[0]: %u", bufbuf[1]);
 		
 		write_bytes(outfile, bufbuf, (wdiff / 8));
-		woffset = woffset - (BLOCK * 8);
+		//woffset = woffset - (BLOCK * 8) + 1;
+		woffset = 0;
 
 	}else if (woffset == BLOCK * 8) { 
 		printf("flush woffset == BLOCK *8\n");
@@ -192,6 +196,7 @@ void flush_codes(int outfile) {
 			printf("5 times\n");
 		}
 		// woffset might need to be woffset += 1;
+		//woffset += 1;
 		//printf("wbuffer[0] %u wbuffer[1] %u\n", wbuffer[0], wbuffer[1]);
 		write_bytes(outfile, wbuffer, ((woffset - 1) /8) + 1); // woffset never greater than 326
 	
