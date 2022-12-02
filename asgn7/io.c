@@ -174,14 +174,17 @@ void flush_codes(int outfile) {
 		//loffset = 0;
 
 	}else if (woffset == BLOCK * 8) { 
+		printf("this should twice\n");
 		write_bytes(outfile, wbuffer, BLOCK);
 	}else{
-		//printf("flushing the normal\n");
+		printf("flushing the normal\n");
+		printf("woffset: %u\n", woffset);
 		//printf("woffset for normal should be 128: %u\n", woffset);
-		if (woffset % 8 != 0) {
+		while (woffset % 8 != 0) {
 			printf("woffset for normal should be 128: %u\n", woffset);
 			wbuffer[woffset / 8]  = wbuffer[woffset / 8] & ~(one << (7 - (woffset % 8)));
 			woffset++;
+			printf("5 times\n");
 		}
 		
 		//printf("wbuffer[0] %u wbuffer[1] %u\n", wbuffer[0], wbuffer[1]);
