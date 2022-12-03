@@ -4,6 +4,7 @@
 #include "pq.h"
 #include "defines.h"
 #include "io.h"
+#include "stack.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -86,7 +87,6 @@ void dump_tree(int outfile, Node *root) {
         	}
 		began = true;
 	}
-	//code_print(&L);
 	
 	if (root != NULL) {
 		dump_tree(outfile, root->left);
@@ -111,6 +111,25 @@ void dump_tree(int outfile, Node *root) {
 	}
 }
 
-Node *rebuild_tree(uint16_t nbytes, uint8_t tree[static nbytes]);
+Node *rebuild_tree(uint16_t nbytes, uint8_t tree[static nbytes]) { // tree_size is nbytesis how big the dump is
+	Stack *s = stack_create(256);
+	for (uint8_t i = 0; i < nbytes; i++) {
+		if (tree[i] == 'L') { // if tree[i] = L then tree[i + 1] will be a symbol
+			Node *n = node_create(tree[i + 1], 0);	
+			stack_push(s, n);
+		}else if (tree[i] == 'I') {
+			Node *right;
+			Node *left;
+			stack_pop(s, &right);
+			stack_pop(s, &left);
+			Node *parent = node_join(left, right);
+			stack_push(s, parent);
+		}
+	}
+	Node *root;
+	stack_pop(s, &root);
+	
+	return root;
+}
 
 void delete_tree(Node **root);
