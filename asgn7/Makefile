@@ -4,12 +4,12 @@ OBJECTS  = $(SOURCES:%.c=%.o)
 CC       = clang
 CFLAGS   = -Wall -Wpedantic -Werror -Wextra -Ofast
 
-.PHONY: all clean
+.PHONY: all clean spotless format
 
 all: encode decode
 
-test: node.o test.o pq.o code.o io.o# get rid of this jesus please
-	$(CC) -o $@ $^
+#test: node.o test.o pq.o code.o io.o stack.o huffman.o # get rid of this jesus please
+#	$(CC) -o $@ $^
 
 encode: $(OBJECTS)
 	$(CC) -o $@ $^
