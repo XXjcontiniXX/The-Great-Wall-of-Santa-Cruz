@@ -12,6 +12,7 @@
 #include "huffman.h"
 #include "header.h"
 #include "stack.h"
+#include <errno.h>
 #define OPTIONS "vho:i:" 
 
 int main(int argc, char **argv) {
@@ -20,6 +21,8 @@ int main(int argc, char **argv) {
 	int infile = 0;
 	int outfile = 1;
 	int opt = 0;
+	//static uint64_t bytes_written = 0;
+	//static uint64_t bytes_read = 0;
 	while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
 		switch (opt) {
 	        	case 'v':
@@ -29,7 +32,11 @@ int main(int argc, char **argv) {
 		        	v = v | (1 << 1);
 				break;
 			case 'o':
-				outfile = open(optarg, O_WRONLY);
+				
+				if ((outfile = open(optarg, O_WRONLY)) < 0) {
+					outfile = open(optarg, O_WRONLY | O_CREAT);
+				}
+
 				break;
 			case 'i': 
 				infile = open(optarg, O_RDONLY);
@@ -48,16 +55,23 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 	
+	// Making a tmpfile before everything to read for the code emitting
+		int tmpdes = open("tmpdes.txt", O_RDWR | O_CREAT);
+	//
+	
 	// initialized & zeroes histogram
 	uint64_t hist[ALPHABET];
 	for (uint32_t i = 0; i < ALPHABET; i++) {
 		hist[i] = 0;
 	}
 	//
-
+	
 	// reads one byte at a time from infile
 	uint8_t character[1];
+	uint64_t bytes = 0;
 	while (read_bytes(infile, character, 1)) { // while there are bytes in the array bufferof[char] should be incremented.
+		bytes++;
+		bytes_written += write_bytes(tmpdes, character, 1);
 		hist[character[0]] += 1;
 	}
 	//
@@ -78,6 +92,7 @@ int main(int argc, char **argv) {
 	// builds the codes
 	Code table[ALPHABET];
 	build_codes(root, table);
+	//code_print(&table[105]);
 	//
 	
 	// constructs a header containing metadata essentially
@@ -92,23 +107,27 @@ int main(int argc, char **argv) {
 	
 	struct stat *file_stat; // allocate space for stat pointer
 	file_stat = malloc(sizeof(struct stat));
-
+	uint64_t file_size = 0;
 	if (file_stat == NULL) {
 		fprintf(stderr, "encode: [ERROR] malloc failed to allocate memeory for the file stat.\n");
 		return 1;
 	}
 
 	fstat(infile, file_stat); // put infile's metadata in file_stat
-	uint64_t file_size = file_stat->st_size; // st_size contains the size in bytes
-	printf("file_size: %lu\n", file_size); 
+	if (infile != 0) {
+		file_size = file_stat->st_size; // st_size contains the size in bytes
+	}else{
+		file_size = bytes;
+	}
+	//printf("file_size: %lu\n", file_size); 
 	uint16_t permissions = file_stat->st_mode;
-	printf("permissions %u\n", permissions);
+	//printf("permissions %u\n", permissions);
 	
 	free(file_stat);
 	file_stat = NULL;
 
 	if (fchmod(outfile, permissions) < 0) { // set outfiles permissions
-		fprintf(stderr, "encode: [ERROR] outfile's permissions setting failed.\n");
+		fprintf(stderr, "encode: [ERROR] outfile's permissions setting failed...err code: %u\n", errno);
 		return 1;
 	}
 	///
@@ -129,8 +148,12 @@ int main(int argc, char **argv) {
 	// dump the tree to outfile
 	dump_tree(outfile, root);
 	// character[] was inited earlier
-	while (read_bytes(infile, character, 1)) {
-		write_code(outfile, &table[character[0]]);
+	lseek(tmpdes, 0, SEEK_SET);	
+	while (read_bytes(tmpdes, character, 1)) {
+		//printf("%u,", character[0]);
+		Code c = table[character[0]];
+		write_code(outfile, &c); // write code pops code off of the code
+
 	}
 	flush_codes(outfile); // flushhhhhh
 
@@ -140,6 +163,7 @@ int main(int argc, char **argv) {
 	if (outfile != 1) {
 		close(outfile);
 	}
+	remove("tmpdes.txt");
 	// then destroy tree
 	// destroy pq
 	// destroy stack
