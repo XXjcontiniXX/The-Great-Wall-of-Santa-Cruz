@@ -67,10 +67,9 @@ int main(int argc, char **argv) {
 	// reads one byte at a time from infile
 	uint8_t character[1];
 	uint64_t bytes = 0;
-	uint64_t subtracters = 0;
 	while (read_bytes(infile, character, 1)) { // while there are bytes in the array bufferof[char] should be incremented.
 		bytes++;
-		subtracters += write_bytes(tmpdes, character, 1);
+		write_bytes(tmpdes, character, 1);
 		hist[character[0]] += 1;
 		//printf("%c: %lu\n", character[0], hist[character[0]]);
 	}
@@ -149,6 +148,9 @@ int main(int argc, char **argv) {
 
 	// character[] was inited earlier
 	lseek(tmpdes, 0, SEEK_SET);
+
+	//printf("bytes_written: %lu\n", bytes_written);
+	bytes_written -= bytes;
 	while (read_bytes(tmpdes, character, 1)) {
 	//	printf("\n");
 	//	printf("\n");
@@ -174,7 +176,7 @@ int main(int argc, char **argv) {
 
 	// then destroy tree
 	delete_tree(&root);
-	bytes_written -= subtracters;
+	//bytes_written -= subtracters;
 	double percentage = (1 - ((double)bytes_written / (double)bytes)) * 100;
 	if (v == 1) {
 		fprintf(stderr, "Uncompressed file size: %lu bytes\n", bytes);	
