@@ -1,5 +1,5 @@
 SOURCES  = $(wildcard *.c)
-OBJECTS  = $(SOURCES:%.c=%.o)
+#OBJECTS  = $(SOURCES:%.c=%.o)
 
 CC       = clang
 CFLAGS   = -Wall -Wpedantic -Werror -Wextra -Ofast
@@ -11,12 +11,11 @@ all: encode decode
 #test: node.o test.o pq.o code.o io.o stack.o huffman.o # get rid of this jesus please
 #	$(CC) -o $@ $^
 
-encode: $(OBJECTS)
+encode: pq.o node.o code.o stack.o io.o huffman.o encode.o
 	$(CC) -o $@ $^
 
-decode: $(OBJECTS)
+decode: pq.o node.o code.o stack.o io.o huffman.o decode.o
 	$(CC) -o $@ $^
-
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
