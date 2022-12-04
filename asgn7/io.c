@@ -79,7 +79,7 @@ void write_code(int outfile, Code *c) {
         }
 	uint32_t i = 0;
 	// until i < c->top
-       	while (bits < 32768 && i < c->top) { // dont forget to change dump_codes TODO		
+       	while (bits < 32768 && i < c->top) { 	
 		bit = code_get_bit(c, i);
 		if (bit == 1) {
                                	wbuffer[bits/8] = wbuffer[bits/8] | (bit << (bits % 8));
@@ -124,7 +124,7 @@ void flush_codes(int outfile) {
         uint8_t one = 1;
 	
 	while (bits % 8 != 0) { // if need to flush case
-		wbuffer[bits / 8]  = wbuffer[bits / 8] & ~(one << (7 - (bits % 8)));
+		wbuffer[bits / 8]  = wbuffer[bits / 8] & ~(one << ((bits % 8))); // this seems faulty
 		bits++;
 	}
 	

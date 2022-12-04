@@ -82,6 +82,7 @@ int main(int argc, char **argv) {
 	uint64_t counter = 0;
 	Node *curr = root;
 	while (counter < (hu.h).file_size && read_bit(infile, &bit)) { /// might have to have read bit read from the lsb of a bit and then read the next byte from the lsb
+		//printf("%u.", bit);
 		if (bit == 1) {
 			curr = curr->right; // if bit == 1 and its children arent NULL its internal continue right
 			if (curr->left == NULL && curr->right == NULL) {
