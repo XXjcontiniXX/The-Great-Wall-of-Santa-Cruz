@@ -113,10 +113,18 @@ int main(int argc, char **argv) {
                 close(outfile);
         }	
 
+	
+
 
 	delete_tree(&root);			
 	// Kenjiro Tsuda
 	
-	
+	double percentage = (1 - ((double)bytes_read / (double)bytes_written)) * 100;
+        if (v == 1) {
+                fprintf(stderr, "Compressed file size: %lu\n", bytes_read);
+		fprintf(stderr, "Uncompressed file size: %lu bytes\n", bytes_written);
+                fprintf(stderr, "Space saving: %.2f%%\n", percentage);
+        }	
+
 	return 0;
 }
