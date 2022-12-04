@@ -24,7 +24,7 @@ clean:
 	rm -f *.o
 
 spotless:
-	rm -f encode decode *.o
+	rm -f encode decode *.o *.txt
 
 format:
 	clang-format -i -style=file *.[ch]
