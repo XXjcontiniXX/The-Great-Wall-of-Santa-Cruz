@@ -13,13 +13,10 @@ uint64_t bytes_read = 0;
 uint64_t bytes_written = 0;
 static uint8_t buffer[BLOCK];
 static uint8_t wbuffer[BLOCK];
-static uint8_t bufbuf[256];
-static uint32_t woffset = 0;
-static uint32_t stoffset = 0;
 static uint32_t last_byte = 0;
 static uint32_t offset = 0; 
+static uint32_t bits = 0;
 static bool rfinished = false;
-static bool first_call = true;
 
 int read_bytes(int infile, uint8_t *buf, int nbytes) {
 	int i = 0;
@@ -74,95 +71,62 @@ bool read_bit(int infile, uint8_t *bit) {
 void write_code(int outfile, Code *c) {
         uint8_t bit = 0;
         uint8_t one = 1;
-
+	
         if (code_empty(c)) {
                 return;
         }
-	
-	if (first_call == true) {
-		first_call = false;
-		woffset += code_size(c) - 1; // stoffset = stoffset - 1 only once
-	}else{
-		woffset += code_size(c); // woffset always on bit that has been changed  // so in any case: woffset + 1 is an
-	}
+	uint32_t i = 0;
+	// until i < c->top
+       	while (bits < 32768 && i < c->top) { // dont forget to change dump_codes TODO		
+		bit = code_get_bit(c, i);
+		if (bit == 1) {
+                               	wbuffer[bits/8] = wbuffer[bits/8] | (bit << (bits % 8));
+		}else{
+				wbuffer[bits/8] = wbuffer[bits/8] & ~((one << (bits % 8)));    // 0001 0000 --> 1110 1111 &
+                       	}
+		i++;		
+		bits++;
+       	}
 
-	stoffset = woffset;
-	if (woffset < 32768) {
-       		while (code_pop_bit(c, &bit)) {
+	
 			
-			if (bit == 1) {
-                                	wbuffer[stoffset/8] = wbuffer[stoffset/8] | (bit << (7 - stoffset % 8));
-			}else{
-                                	wbuffer[stoffset/8] = wbuffer[stoffset/8] &  ~((one << (7 - stoffset % 8)));    // 0001 0000 --> 1110 1111 &
-                        	}
-			stoffset = stoffset == 0 ? 0 : stoffset - 1;
-        	}
-		// IFF (if and only if)
-		if (woffset == 32767) { // the bit which has been changed is the last bit flush it
-			flush_codes(outfile);
-		}
-		
-	}else{ // if there is an overflow, e.g. woffset == 32678, we know the previous bit changed is woffset - code_size(c), so until and exlcuding index woffset - code_size(c) write
-        
-		uint32_t nbytes = code_size(c);
-		uint32_t pre_woffset =  woffset - code_size(c);
-		uint32_t index = woffset - 32768; // woffset is the index NOT element/byte number
-		woffset = 0;
-		first_call = true;
-        	while (code_size(c) > 0 && code_pop_bit(c, &bit)) { // if there were more bits to pop and woffset is ready to set a bit outside the block
-               
-			if (bit == 1) {
-                        	        bufbuf[index/8] = bufbuf[index/8] | (bit << (7 - index % 8));
-                        	}else{
-                                	bufbuf[index/8] = bufbuf[index/8] &  ~((one << (7 - index % 8)));    // 0001 0000 --> 1110 1111 &
-                        	}
-				if (index == 0) {
-					break;
-				}
-			woffset++; // woffset will be set to the *top* of bufbuf
-                	index--;
-        	}
-		woffset++; // ^^^ the break statment is blocking the last increment duh
-		
-		uint32_t windex = 32767;
-		while (pre_woffset != windex && code_pop_bit(c, &bit)) { // if there were more bits to pop and woffset is ready to set a bit outside the block
-			if (bit == 1) {
-                        	        wbuffer[windex/8] = wbuffer[windex/8] | (bit << (7 - windex % 8));
-                        	}else{
-                                	wbuffer[windex/8] = wbuffer[windex/8] &  ~((one << (7 - windex % 8)));    // 0001 0000 --> 1110 1111 &
-                        	}
-                	windex--;
-        	}
-		
-		write_bytes(outfile, wbuffer, BLOCK);
-
-        	if (nbytes != 0) {
-                	memcpy(wbuffer, bufbuf, 256);
-        	}
-	
+	if (bits == 32768) { // if either nothing more to pop or overflowed, check if overflowed. If so, write the block.
+		write_bytes(outfile, wbuffer, 4096);
+		//flush_codes(outfile);
+		bits = 0;
+	}else{ // if no overflow, don't reset bits or do anything. This also means code_pop_bit() is what failed, so it should fail below
+		//printf("%u\n", wbuffer[bits - 1]);
+		return;
 	}
+
+
+	
+	bits = 0;
+	while (i < c->top) { 
+		bit = code_get_bit(c, i);
+		if (bit == 1) {
+                     	wbuffer[bits/8] = wbuffer[bits/8] | (bit << (bits % 8));
+                }else{
+                	wbuffer[bits/8] = wbuffer[bits/8] &  ~((one << (bits % 8)));    // 0001 0000 --> 1110 1111 &
+                }
+                	bits++;
+			i++;
+       	 	}		
+	return;	
 }
+	
+
 
 
 void flush_codes(int outfile) {
         uint8_t one = 1;
-	uint32_t flusher = 0;
-
-	if (woffset == 32767) {  // if full case
-		write_bytes(outfile, wbuffer, (woffset/8) + 1);
-		return;
-	}
-	if  (first_call) {
-		woffset--;
-	}
-
-	flusher = woffset + 1;
-	while (flusher % 8 != 0) { // if need to flush case
-		wbuffer[flusher / 8]  = wbuffer[flusher / 8] & ~(one << (7 - (flusher % 8)));
-		flusher++;
+	
+	while (bits % 8 != 0) { // if need to flush case
+		wbuffer[bits / 8]  = wbuffer[bits / 8] & ~(one << (7 - (bits % 8)));
+		bits++;
 	}
 	
-	write_bytes(outfile, wbuffer, flusher / 8);
+	write_bytes(outfile, wbuffer, ((bits - 1)  / 8) + 1);
         return;	
 
 }
