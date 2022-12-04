@@ -27,5 +27,5 @@ OPTIONS
   `-o` outfile     Output of decompressed data.  
 
 ### Final notes  
-The decode function will not attempt to decode a file unless the correct identification number 0xBEEFBBAD is explicitly delclared within the first four bytes of file to be decoded.  
+The decode function will not attempt to decode a file unless the correct identification number 0xBEEFBBAD is explicitly delclared within the first four bytes of the file to be decoded.  
 #### Happy compressing!
