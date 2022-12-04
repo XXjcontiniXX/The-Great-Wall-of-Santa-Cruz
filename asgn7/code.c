@@ -102,7 +102,7 @@ bool code_pop_bit(Code *c, uint8_t *bit) {
 }
 
 void code_print(Code *c) {
-	for (uint32_t i = 0; i < ALPHABET; i++) {
+	for (uint32_t i = 0; i < code_size(c); i++) {
 		if (i % 64 == 0) {
                         printf("\n");
                 }

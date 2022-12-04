@@ -9,9 +9,17 @@ struct PriorityQueue {
 	uint32_t capacity;
 	uint64_t *freqs;
 	uint8_t *symbols;
+	Node **lefts;
+	Node **rights;
 	uint32_t offset;
 
 };
+
+void swap_node(Node **x, Node **y) {
+	Node *t = *x;
+	*x = *y;
+	*y = t;
+}
 
 void swap_64(uint64_t *x, uint64_t *y) {
 	uint32_t t = *x;
@@ -32,8 +40,12 @@ PriorityQueue *pq_create(uint32_t capacity) {
 		q->capacity = capacity;
 		uint64_t *freqs = (uint64_t*)calloc(capacity, sizeof(uint64_t));
 		uint8_t *symbols = (uint8_t*)calloc(capacity, sizeof(uint8_t));
+		Node **lefts = (Node**)calloc(capacity, sizeof(Node*));
+		Node **rights = (Node**)calloc(capacity, sizeof(Node*));
 		q->freqs = freqs;
 		q->symbols = symbols;
+		q->lefts = lefts;
+		q->rights = rights;
 		q->offset = 0;
 	}
 	return q;
@@ -43,6 +55,8 @@ void pq_delete(PriorityQueue **q) {
 	if ((*q)) {
 		free((*q)->freqs);
 		free((*q)->symbols);
+		free((*q)->rights);
+		free((*q)->lefts);
 		free(*q);
 		*q = NULL;
 	}
@@ -82,13 +96,17 @@ bool enqueue(PriorityQueue *q, Node *n) {
 	}else{ 
 		if (pq_empty(q)) {
 			q->freqs[0] = n->frequency; // insert to free spots
-                	(q->symbols)[0] = n->symbol;
+                	q->symbols[0] = n->symbol;
+			q->lefts[0] = n->left;
+			q->rights[0] = n->right;
 			q->offset = 0;
 		}else{
 			for (uint32_t i = 0; i < q->capacity; i++) {
 				if (q->freqs[i] == 0) {
 					q->freqs[i] = n->frequency;
-					(q->symbols)[i] = n->symbol;
+					q->symbols[i] = n->symbol;
+					q->lefts[i] = n->left;
+					q->rights[i] = n->right;
 					q->offset = i;
 					break;
 				}
@@ -98,7 +116,9 @@ bool enqueue(PriorityQueue *q, Node *n) {
 		uint32_t index = q->offset; // start at end of array
 		while (index > 0 && q->freqs[index] < q->freqs[index - 1]) {
 			swap_64(&q->freqs[index], &q->freqs[index - 1]);
-			swap_8(&(q->symbols)[index], &(q->symbols)[index - 1]);
+			swap_8(&q->symbols[index], &q->symbols[index - 1]);
+			swap_node(&q->lefts[index], &q->lefts[index - 1]);
+			swap_node(&q->rights[index], &q->rights[index - 1]);
 			index -= 1;
 		}	
 	}
@@ -116,12 +136,18 @@ bool dequeue(PriorityQueue *q, Node **n) {
 		q->symbols[0] = 0;
 		q->freqs[0] = 0;
 		(*n) = node_create(symbol, frequency);
-			                        
+		(*n)->left = q->lefts[0];
+		(*n)->right = q->rights[0];
+		
 		for (uint32_t i = 0; i < q->offset && q->freqs[i + 1] != 0; i++) {
 			q->freqs[i] = q->freqs[i + 1];
 			q->freqs[i + 1] = 0;
 			q->symbols[i] = q->symbols[i + 1];
 			q->symbols[i + 1] = 0;
+			q->lefts[i] = q->lefts[i + 1];
+			q->lefts[i + 1] = NULL;
+			q->rights[i] = q->rights[i + 1];
+			q->lefts[i + 1] = NULL;
 		}
 		return true;
 	}

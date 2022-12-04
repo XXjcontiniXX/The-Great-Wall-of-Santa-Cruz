@@ -9,16 +9,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-static bool began = false;
 static bool started = false;
 static Code c;
-
-
-static Code L;
-static Code L_copy;
-
-static Code I;
-static Code I_copy;
 
 
 
@@ -42,6 +34,7 @@ Node *build_tree(uint64_t hist[static ALPHABET]) {
 
 	Node *root = NULL;
 	dequeue(q, &root);
+	pq_delete(&q);	
 
 	return root;
 }
@@ -72,41 +65,19 @@ void build_codes(Node *root, Code table[static ALPHABET]) {
 	return;
 }
 
-void dump_tree(int outfile, Node *root) {
-	uint8_t bit;
-	uint8_t byte = 1;
-	if (began == false) {
-		for (uint8_t i = 0; i < 8; i++) {
-        		bit = (bool)('L' & (byte << (7 - i % 8)));
-			code_push_bit(&L, bit);
-		}
-			
-		for (uint8_t i = 0; i < 8; i++) {
-                	bit = (bool)('I' & (byte << (7 - i % 8)));
-                	code_push_bit(&I, bit);
-        	}
-		began = true;
-	}
-	
+void dump_tree(int outfile, Node *root) {	
 	if (root != NULL) {
 		dump_tree(outfile, root->left);
 		dump_tree(outfile, root->right);
 
 		if (root->left == NULL && root->right == NULL) {
-			Code s = code_init();
-			L_copy = L;
-			write_code(outfile, &L);  // write binary char to file
-			L = L_copy;
-			
-			for (uint8_t i = 0; i < 8; i++) {
-                		bit = (bool)(root->symbol & (byte << (7 - i % 8)));
-                		code_push_bit(&s, bit);
-        		}
-			write_code(outfile, &s); // write symbol
+			uint8_t L = 'L';
+			write_bytes(outfile, &L, 1);  // write binary char to file
+			uint8_t s = root->symbol;
+			write_bytes(outfile, &s, 1); // write symbol
 		}else{
-			I_copy = I;
-			write_code(outfile, &I);
-			I = I_copy;
+			uint8_t I = 'I';
+			write_bytes(outfile, &I, 1);
 		}
 	}
 }
@@ -117,6 +88,7 @@ Node *rebuild_tree(uint16_t nbytes, uint8_t tree[static nbytes]) { // tree_size 
 		if (tree[i] == 'L') { // if tree[i] = L then tree[i + 1] will be a symbol
 			Node *n = node_create(tree[i + 1], 0);	
 			stack_push(s, n);
+
 		}else if (tree[i] == 'I') {
 			Node *right;
 			Node *left;
@@ -132,4 +104,12 @@ Node *rebuild_tree(uint16_t nbytes, uint8_t tree[static nbytes]) { // tree_size 
 	return root;
 }
 
-void delete_tree(Node **root);
+void delete_tree(Node **root) {
+	if ((*root) != NULL) {
+		delete_tree(&((*root)->left));
+		delete_tree(&((*root)->right));
+		node_delete(root);
+	}
+	(*root) = NULL;	
+	// do nothing
+}
