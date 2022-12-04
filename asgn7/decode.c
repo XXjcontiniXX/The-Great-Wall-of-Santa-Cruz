@@ -83,23 +83,21 @@ int main(int argc, char **argv) {
 	Node *curr = root;
 	while (counter < (hu.h).file_size && read_bit(infile, &bit)) { /// might have to have read bit read from the lsb of a bit and then read the next byte from the lsb
 		if (bit == 1) {
+			curr = curr->right; // if bit == 1 and its children arent NULL its internal continue right
 			if (curr->left == NULL && curr->right == NULL) {
 				uint8_t *sym = &curr->symbol;
 				write_bytes(outfile, sym, 1);
 				curr = root;
 				counter++;
-			}else{
-				curr = curr->right; // if bit == 1 and its children arent NULL its internal continue right
 			}
 			
 		}else{ // if bit == 0 
+			curr = curr->left; // if bit == 1 and its children arent NULL its internal continue right
 			if (curr->left == NULL && curr->right == NULL) {
 				uint8_t *sym = &curr->symbol;
                                 write_bytes(outfile, sym, 1);
 				curr = root;
 				counter++;
-                        }else{
-                                curr = curr->left; // if bit == 1 and its children arent NULL its internal continue right
                         }
 		}
 

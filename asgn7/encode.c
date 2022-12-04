@@ -16,13 +16,11 @@
 #define OPTIONS "vho:i:" 
 
 int main(int argc, char **argv) {
-	char help[] = "SYNOPSIS\n  A Huffman encoder.\n  Compresses a file using the Huffman coding algorithm.\n\nUSAGE\n  ./huff-encode [-h] [-i infile] [-o outfile]\n\nOPTIONS\n  -h             Program usage and help.\n  -v             Print compression statistics.\n  -i infile      Input file to compress.\n  -o outfile     Output of compressed data.\n";
+	char help[] = "SYNOPSIS\n  A Huffman encoder.\n  Compresses a file using the Huffman coding algorithm.\n\nUSAGE\n  ./encode [-h] [-i infile] [-o outfile]\n\nOPTIONS\n  -h             Program usage and help.\n  -v             Print compression statistics.\n  -i infile      Input file to compress.\n  -o outfile     Output of compressed data.\n";
 	uint8_t v = 0;
 	int infile = 0;
 	int outfile = 1;
 	int opt = 0;
-	//static uint64_t bytes_written = 0;
-	//static uint64_t bytes_read = 0;
 	while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
 		switch (opt) {
 	        	case 'v':
@@ -50,17 +48,17 @@ int main(int argc, char **argv) {
 	}
 
 
-	if (v == 2) {
+	if (v > 1) {
 		fprintf(stderr, "%s", help);
 		return 0;
 	}
 	
 	// Making a tmpfile before everything to read for the code emitting
-		int tmpdes = open("tmpdes.txt", O_RDWR | O_CREAT);
+	int tmpdes = open("tmpdes.txt", O_RDWR | O_CREAT);
 	//
 	
 	// initialized & zeroes histogram
-	uint64_t hist[ALPHABET];
+	uint64_t hist[ALPHABET];                      
 	for (uint32_t i = 0; i < ALPHABET; i++) {
 		hist[i] = 0;
 	}
@@ -69,9 +67,10 @@ int main(int argc, char **argv) {
 	// reads one byte at a time from infile
 	uint8_t character[1];
 	uint64_t bytes = 0;
+	uint64_t subtracters = 0;
 	while (read_bytes(infile, character, 1)) { // while there are bytes in the array bufferof[char] should be incremented.
 		bytes++;
-		bytes_written += write_bytes(tmpdes, character, 1);
+		subtracters += write_bytes(tmpdes, character, 1);
 		hist[character[0]] += 1;
 		//printf("%c: %lu\n", character[0], hist[character[0]]);
 	}
@@ -145,7 +144,6 @@ int main(int argc, char **argv) {
 	(hu.h).file_size = file_size;
 
 	write_bytes(outfile, hu.bytes, sizeof(hu)); // writes to outfile, the header casted to uint8_t for the entire size of header
-	
 	// dump the tree to outfile
 	dump_tree(outfile, root);
 
@@ -155,9 +153,9 @@ int main(int argc, char **argv) {
 	//	printf("\n");
 	//	printf("\n");
 	//	printf("one char\n");
-	//	printf("%c\n", character[0]);
+	
 		Code d = table[character[0]];
-	//	code_print(&d);
+	
 		write_code(outfile, &d);
 	}
 
@@ -170,19 +168,18 @@ int main(int argc, char **argv) {
 	if (outfile != 1) {
 		close(outfile);
 	}
-/*	
-	printf("///Testing(encode)///\n");
-	uint8_t bit;
-	close(outfile);
-	outfile = open("encode.txt", O_RDONLY);
-	while(read_bit(outfile, &bit)) {
-                printf("%u", bit);
-        }
-        printf("\n");
-*/
+
+
 	remove("tmpdes.txt");
+
 	// then destroy tree
-	// destroy pq
-	// destroy stack
+	delete_tree(&root);
+	bytes_written -= subtracters;
+	double percentage = (1 - ((double)bytes_written / (double)bytes)) * 100;
+	if (v == 1) {
+		fprintf(stderr, "Uncompressed file size: %lu bytes\n", bytes);	
+		fprintf(stderr, "Compressed file size: %lu\n", bytes_written);
+		fprintf(stderr, "Space saving: %.2f%%\n", percentage);
+	}
 	return 0;
 }
