@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
         }	
 
 
-			
+	delete_tree(&root);			
 	// Kenjiro Tsuda
 	
 	
