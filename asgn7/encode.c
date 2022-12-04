@@ -73,6 +73,7 @@ int main(int argc, char **argv) {
 		bytes++;
 		bytes_written += write_bytes(tmpdes, character, 1);
 		hist[character[0]] += 1;
+		//printf("%c: %lu\n", character[0], hist[character[0]]);
 	}
 	//
 	
@@ -147,22 +148,38 @@ int main(int argc, char **argv) {
 	
 	// dump the tree to outfile
 	dump_tree(outfile, root);
-	// character[] was inited earlier
-	lseek(tmpdes, 0, SEEK_SET);	
-	while (read_bytes(tmpdes, character, 1)) {
-		//printf("%u,", character[0]);
-		Code c = table[character[0]];
-		write_code(outfile, &c); // write code pops code off of the code
 
+	// character[] was inited earlier
+	lseek(tmpdes, 0, SEEK_SET);
+	while (read_bytes(tmpdes, character, 1)) {
+	//	printf("\n");
+	//	printf("\n");
+	//	printf("one char\n");
+	//	printf("%c\n", character[0]);
+		Code d = table[character[0]];
+	//	code_print(&d);
+		write_code(outfile, &d);
 	}
+
 	flush_codes(outfile); // flushhhhhh
 
 	if (infile != 0) {
 		close(infile);
 	}
+
 	if (outfile != 1) {
 		close(outfile);
 	}
+/*	
+	printf("///Testing(encode)///\n");
+	uint8_t bit;
+	close(outfile);
+	outfile = open("encode.txt", O_RDONLY);
+	while(read_bit(outfile, &bit)) {
+                printf("%u", bit);
+        }
+        printf("\n");
+*/
 	remove("tmpdes.txt");
 	// then destroy tree
 	// destroy pq
