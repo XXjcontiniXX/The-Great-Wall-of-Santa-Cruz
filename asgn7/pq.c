@@ -38,8 +38,8 @@ PriorityQueue *pq_create(uint32_t capacity) {
     q->capacity = capacity;
     uint64_t *freqs = (uint64_t *)calloc(capacity, sizeof(uint64_t));
     uint8_t *symbols = (uint8_t *)calloc(capacity, sizeof(uint8_t));
-    Node **lefts = (Node **)calloc(capacity, sizeof(Node *));
-    Node **rights = (Node **)calloc(capacity, sizeof(Node *));
+    Node **lefts = (Node **)calloc(capacity, sizeof(Node *)); // array of nodes
+    Node **rights = (Node **)calloc(capacity, sizeof(Node *)); // array of nodes (calloc because ht did same thing)
     q->freqs = freqs;
     q->symbols = symbols;
     q->lefts = lefts;
@@ -50,8 +50,8 @@ PriorityQueue *pq_create(uint32_t capacity) {
 }
 
 void pq_delete(PriorityQueue **q) {
-  if ((*q)) {
-    free((*q)->freqs);
+  if ((*q)) { // just frees each array
+    free((*q)->freqs); 
     free((*q)->symbols);
     free((*q)->rights);
     free((*q)->lefts);
@@ -92,13 +92,13 @@ bool enqueue(PriorityQueue *q, Node *n) {
     return false;
   } else {
     if (pq_empty(q)) {
-      q->freqs[0] = n->frequency; // insert to free spots
+      q->freqs[0] = n->frequency; // if new pq then put in zeroth index
       q->symbols[0] = n->symbol;
       q->lefts[0] = n->left;
       q->rights[0] = n->right;
       q->offset = 0;
     } else {
-      for (uint32_t i = 0; i < q->capacity; i++) {
+      for (uint32_t i = 0; i < q->capacity; i++) { // if has stuff in it find free spot
         if (q->freqs[i] == 0) {
           q->freqs[i] = n->frequency;
           q->symbols[i] = n->symbol;
@@ -111,7 +111,7 @@ bool enqueue(PriorityQueue *q, Node *n) {
     }
     // insert time
     uint32_t index = q->offset; // start at end of array
-    while (index > 0 && q->freqs[index] < q->freqs[index - 1]) {
+    while (index > 0 && q->freqs[index] < q->freqs[index - 1]) { // essentially swap towards front until the right spot is found
       swap_64(&q->freqs[index], &q->freqs[index - 1]);
       swap_8(&q->symbols[index], &q->symbols[index - 1]);
       swap_node(&q->lefts[index], &q->lefts[index - 1]);
@@ -125,7 +125,7 @@ bool enqueue(PriorityQueue *q, Node *n) {
 bool dequeue(PriorityQueue *q, Node **n) {
   if (pq_empty(q)) {
     return false;
-  } else {
+  } else { // if not empty return first node
     uint64_t frequency = q->freqs[0];
     uint8_t symbol = q->symbols[0];
     q->symbols[0] = 0;
@@ -134,7 +134,7 @@ bool dequeue(PriorityQueue *q, Node **n) {
     (*n)->left = q->lefts[0];
     (*n)->right = q->rights[0];
 
-    for (uint32_t i = 0; i < q->offset && q->freqs[i + 1] != 0; i++) {
+    for (uint32_t i = 0; i < q->offset && q->freqs[i + 1] != 0; i++) { // moves everything towards the front once to fill the gap at index 0
       q->freqs[i] = q->freqs[i + 1];
       q->freqs[i + 1] = 0;
       q->symbols[i] = q->symbols[i + 1];

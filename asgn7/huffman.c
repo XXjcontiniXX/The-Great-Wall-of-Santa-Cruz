@@ -81,8 +81,8 @@ void dump_tree(int outfile, Node *root) {
 Node *rebuild_tree(
     uint16_t nbytes,
     uint8_t tree[static nbytes]) { // tree_size is nbytesis how big the dump is
-  Stack *s = stack_create(nbytes + 1);
-  for (uint16_t i = 0; i < nbytes; i++) {
+  Stack *s = stack_create(nbytes + 1); // stack can be of size at most nbytes + 1 at any given time 
+  for (uint16_t i = 0; i < nbytes; i++) { // 
     if (tree[i] == 'L') { // if tree[i] = L then tree[i + 1] will be a symbol
       Node *n = node_create(tree[i + 1], 0);
       stack_push(s, n);
@@ -105,7 +105,7 @@ Node *rebuild_tree(
 
 void delete_tree(Node **root) {
   if ((*root) != NULL) {
-    delete_tree(&((*root)->left));
+    delete_tree(&((*root)->left));  // uses post-order traversal to delete all children first
     delete_tree(&((*root)->right));
     node_delete(root);
   }

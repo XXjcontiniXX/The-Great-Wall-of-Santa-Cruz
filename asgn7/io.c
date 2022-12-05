@@ -25,9 +25,8 @@ int read_bytes(int infile, uint8_t *buf, int nbytes) {
   while (nbytes - i > 0 && (j = read(infile, buf + i, nbytes - i)) >
                                0) { // if read n bytes read n less bytes
     i += j;
-    //	fprintf(stderr, "maybe twice\n");
   }
-  // fprintf(stderr, "once\n");
+  
   bytes_read += i;
   return i;
 }
@@ -51,7 +50,7 @@ bool read_bit(int infile, uint8_t *bit) {
   if (rfinished) {
     return false;
   }
-  if (offset >= BLOCK * 8 || offset == 0) { //
+  if (offset >= BLOCK * 8 || offset == 0) { // if fresh or greater than max bits
     last_byte =
         read_bytes(infile, buffer, BLOCK); // bufdex cannot be more than 4096
     offset = 0;

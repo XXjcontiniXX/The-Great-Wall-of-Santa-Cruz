@@ -21,7 +21,7 @@ Node *node_create(uint8_t symbol, uint64_t frequency) {
   if (n) {
     n->symbol = symbol;
     n->frequency = frequency;
-    //	n->left = NULL;
+    //	n->left = NULL; // unnecsarry
     //	n->right = NULL;
   }
   return n;
@@ -37,7 +37,7 @@ void node_delete(Node **n) {
 
 Node *node_join(Node *left, Node *right) {
   uint64_t sum = (left->frequency) + (right->frequency);
-  Node *n = node_create('$', sum);
+  Node *n = node_create('$', sum); // creates interior node
   n->left = left;
   n->right = right;
   return n;
@@ -45,7 +45,7 @@ Node *node_join(Node *left, Node *right) {
 
 void node_print(Node *n) {
   if (isprint(n->symbol) && !iscntrl(n->symbol)) {
-    printf("n->symbol = %c\n", (char)n->symbol);
+    printf("n->symbol = %c\n", (char)n->symbol); 
   } else {
     printf("n->symbol = 0x%02" PRIx8 "\n", n->symbol);
   }

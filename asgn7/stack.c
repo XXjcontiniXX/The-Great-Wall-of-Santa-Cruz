@@ -18,14 +18,14 @@ Stack *stack_create(uint32_t capacity) {
   if (s) {
     s->top = 0;
     s->capacity = capacity;
-    s->items = (Node **)calloc(capacity, sizeof(Node *));
+    s->items = (Node **)calloc(capacity, sizeof(Node *)); // array of node == pointer to pointer
   }
   return s;
 }
 
 void stack_delete(Stack **s) {
   for (uint32_t i = 0; i < stack_size(*s); i++) {
-    if (*(((*s)->items) + i) != NULL) {
+    if (*(((*s)->items) + i) != NULL) { // deletes each item off the stack
       node_delete(&(*(((*s)->items) + i)));
     }
   }
@@ -53,15 +53,15 @@ bool stack_push(Stack *s, Node *n) {
     return false;
   }
 
-  *((s->items) + s->top) = n;
+  *((s->items) + s->top) = n; // if not full append node
   s->top += 1;
   return true;
 }
 
 bool stack_pop(Stack *s, Node **n) {
-  if (!stack_empty(s)) {
-    *n = *((s->items) + s->top - 1);
-    *((s->items) + s->top) = NULL;
+  if (!stack_empty(s)) { // if stack not empty
+    *n = *((s->items) + s->top - 1); // get the top item 
+    *((s->items) + s->top) = NULL; // set that pointer to null
     s->top -= 1;
     return true;
   } else {

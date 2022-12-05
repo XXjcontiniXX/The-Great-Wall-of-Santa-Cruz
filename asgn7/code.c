@@ -14,15 +14,15 @@ typedef struct {
 Code code_init(void) {
   Code c;
   c.top = 0;
-  for (uint32_t i = 0; i < MAX_CODE_SIZE; i++) {
+  for (uint32_t i = 0; i < MAX_CODE_SIZE; i++) {  // zero out to remove junk
     c.bits[i] = 0;
   }
   return c;
 }
 
-uint32_t code_size(Code *c) { return c->top; }
+uint32_t code_size(Code *c) { return c->top; }  
 
-bool code_empty(Code *c) {
+bool code_empty(Code *c) {  
   if (code_size(c) == 0) {
     return true;
   } else {
@@ -39,8 +39,8 @@ bool code_full(Code *c) {
 }
 
 bool code_set_bit(Code *c, uint32_t i) {
-  uint32_t chunk = i / 8;
-  uint32_t index = i % 8;
+  uint32_t chunk = i / 8;  // returns index
+  uint32_t index = i % 8; // returns bit index
   if (index + chunk > 255) {
     return false;
   }
@@ -50,8 +50,8 @@ bool code_set_bit(Code *c, uint32_t i) {
 }
 
 bool code_clr_bit(Code *c, uint32_t i) {
-  uint32_t chunk = i / 8;
-  uint32_t index = i % 8;
+  uint32_t chunk = i / 8; // index
+  uint32_t index = i % 8; // bit index
   if (index + chunk > 255) {
     return false;
   }
@@ -67,7 +67,7 @@ bool code_get_bit(Code *c, uint32_t i) {
   if (index + chunk > 255) {
     return false;
   }
-  uint8_t ans = c->bits[chunk] & one << index;
+  uint8_t ans = c->bits[chunk] & one << index; // masks to get bit
   return ans;
 }
 
@@ -93,7 +93,7 @@ bool code_pop_bit(Code *c, uint8_t *bit) {
   if (bit == NULL) {
     fprintf(stderr, "Code.c: [ERROR] bit pointer is NULL.\n");
   }
-  code_clr_bit(c, index);
+  code_clr_bit(c, index); // clears bit after popping/unncessary from the perspetive of the interface but cleaner
   return true;
 }
 
