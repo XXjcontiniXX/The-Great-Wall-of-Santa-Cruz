@@ -26,7 +26,7 @@ OPTIONS
   `-i` infile      Input file to decompress.  
   `-o` outfile     Output of decompressed data.  
   
-##File descriptions 
+## File descriptions 
 1. encode.c: This file contains my implementation of the Huffman encoder.  
   
 2. decode.c: This file contains my implementation of the Huffman decoder.  
