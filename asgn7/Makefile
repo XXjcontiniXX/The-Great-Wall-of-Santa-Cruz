@@ -27,4 +27,4 @@ spotless:
 	rm -f encode decode *.{c, txt}
 
 format:
-	clang-format -i -style=file *.c
+	clang-format -i -style=file *.[ch]
