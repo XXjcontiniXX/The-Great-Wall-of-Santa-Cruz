@@ -25,7 +25,36 @@ OPTIONS
   `-v`             Print compression statistics.  
   `-i` infile      Input file to decompress.  
   `-o` outfile     Output of decompressed data.  
+  
+##File list  
+1. encode.c: This file contains my implementation of the Huffman encoder.  
+  
+2. decode.c: This file contains my implementation of the Huffman decoder.  
+  
+3. defines.h: This file contains macro definitions used throughout the assignment.  
+    
+4. header.h: This file contains the struct definition for a file header.  
+  
+5. node.h: This file contains the node ADT interface.  
+  
+6. node.c: This file contains my implementation of the node ADT.  
+  
+7. pq.h: This file contains the priority queue ADT interface.  
+  
+8. pq.c: This file contains my implementation of the priority queue ADT.  
+  
+9. code.h: This file contains the code ADT interface.    
+  
+10. code.c: This file contains my implementation of the code ADT.  
+  
+11. io.h: This file contains the I/O module interface.  
 
+12. io.c: This file contains my implementation of the I/O module.  
+  
+13. stack.h: This file contains the stack ADT interface.  
+  
+14. stack.c: This file contains your implementation of the stack ADT.  
+  
 ### Final notes  
 The decode function will not attempt to decode a file unless the correct identification number 0xBEEFBBAD is explicitly delclared within the first four bytes of the file to be decoded.  
 #### Happy compressing!
