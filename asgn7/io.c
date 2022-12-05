@@ -21,7 +21,7 @@ static bool rfinished = false;
 int read_bytes(int infile, uint8_t *buf, int nbytes) {
 	int i = 0;
 	int j;
-
+	
 	while (nbytes - i > 0 && (j = read(infile, buf + i, nbytes - i)) > 0) { // if read n bytes read n less bytes
 		i += j;
 	//	fprintf(stderr, "maybe twice\n");
