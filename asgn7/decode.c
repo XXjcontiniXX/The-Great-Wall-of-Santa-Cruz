@@ -36,8 +36,10 @@ int main(int argc, char **argv) {
 
                                 break;
                         case 'i':
+                                if ((infile = open(optarg, O_RDONLY)) < 0) {
+					return 1;
+				}
 
-                                infile = open(optarg, O_RDONLY);
                                 break;
                         default:
                                 fprintf(stderr, "%s", help);
