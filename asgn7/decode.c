@@ -121,8 +121,8 @@ int main(int argc, char **argv) {
 	
 	double percentage = (1 - ((double)bytes_read / (double)bytes_written)) * 100;
         if (v == 1) {
-                fprintf(stderr, "Compressed file size: %lu\n", bytes_read);
-		fprintf(stderr, "Uncompressed file size: %lu bytes\n", bytes_written);
+                fprintf(stderr, "Compressed file size: %lu bytes\n", bytes_read);
+		fprintf(stderr, "Decompressed file size: %lu bytes\n", bytes_written);
                 fprintf(stderr, "Space saving: %.2f%%\n", percentage);
         }	
 
