@@ -93,7 +93,7 @@ void write_code(int outfile, Code *c) {
 	
 			
 	if (bits == 32768) { // if either nothing more to pop or overflowed, check if overflowed. If so, write the block.
-		bytes_written += write_bytes(outfile, wbuffer, 4096);
+		write_bytes(outfile, wbuffer, 4096);
 		//flush_codes(outfile);
 		bits = 0;
 	}else{ // if no overflow, don't reset bits or do anything. This also means code_pop_bit() is what failed, so it should fail below
@@ -128,7 +128,7 @@ void flush_codes(int outfile) {
 		bits++;
 	}
 	
-	bytes_written += write_bytes(outfile, wbuffer, ((bits - 1)  / 8) + 1);
+	write_bytes(outfile, wbuffer, ((bits - 1)  / 8) + 1);
         return;	
 
 }

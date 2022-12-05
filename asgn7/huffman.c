@@ -88,6 +88,7 @@ Node *rebuild_tree(uint16_t nbytes, uint8_t tree[static nbytes]) { // tree_size 
 		if (tree[i] == 'L') { // if tree[i] = L then tree[i + 1] will be a symbol
 			Node *n = node_create(tree[i + 1], 0);	
 			stack_push(s, n);
+			i++;
 
 		}else if (tree[i] == 'I') {
 			Node *right;
